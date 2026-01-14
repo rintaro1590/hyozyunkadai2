@@ -1,0 +1,4 @@
+ Invoke-RestMethod -Uri "http://localhost/api/database.php" `
+   -Method Post `
+   -Headers @{"Content-Type"="application/json"} `
+   -Body '{"type": "Android", "user_id": 25702, "kamei_id": 7, "name": "石川", "password": "student2"}'
