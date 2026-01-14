@@ -69,6 +69,7 @@ insert into kamei (kamei_id,kamei_mei) values(6,'生産電気システム技術�
 insert into kamei (kamei_id,kamei_mei) values(7,'生産電子情報システム技術科');
 insert into kamei (kamei_id,kamei_mei) values(8,'建築施工システム技術科');
 
+insert into account (user_id, kamei_id,name,password) values (25702,7,'石川','student02');
 insert into account (user_id, kamei_id,name,password) values (25713,7,'佐藤凜汰朗','student13');
 insert into account (user_id, kamei_id,name,password,teacher) values (701,7,'宇野','teacher1',true);
 insert into account (user_id, kamei_id,name,password,teacher) values (702,7,'渡邊','teacher2',true);
