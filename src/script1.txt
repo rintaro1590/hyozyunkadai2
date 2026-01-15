@@ -1,4 +1,0 @@
- Invoke-RestMethod -Uri "http://localhost/api/database.php" `
-  -Method Post `
-  -Headers @{"Content-Type"="application/json"} `
-  -Body '{"type": "Arduino", "datetime": "2026-01-09 19:53:40", "room_num": "0-502", "temp": 25.4,"humid": 34.1,"press": 1013.2,"light": true}'

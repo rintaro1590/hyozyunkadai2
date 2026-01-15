@@ -1,1 +1,0 @@
-Invoke-RestMethod -Method Post -Uri "http://localhost/api/api_main.php" -Body '{"type": "Android", "user_id": 25713, "subject_id": 7402, "time": "2026-01-10 9:30:34", "status": 1, "room_num": "0-502"}'

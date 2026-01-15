@@ -1,8 +1,0 @@
-$res = Invoke-RestMethod -Uri "http://localhost/api/api_main.php" `
-   -Method Post `
-   -Headers @{"Content-Type"="application/json"} `
-   -Body '{"type": "Android", "user_id": 701, "password": "teacher1"}'
-
-# 2. 全体の中身を詳細に表示（System.Object[] を展開）
-Write-Host "--- 全体のレスポンス (JSON形式) ---" -ForegroundColor Cyan
-$res | ConvertTo-Json -Depth 5
