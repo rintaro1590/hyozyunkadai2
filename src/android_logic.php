@@ -3,11 +3,17 @@ function handleAndroidRequest($dbconn, $data) {
     // 1. 新規作成
     if (isset($data['user_id'], $data['kamei_id'], $data['name'], $data['password'])) {
         $check = pg_query_params($dbconn, "SELECT user_id FROM account WHERE user_id = $1", [$data['user_id']]);
-        if (pg_num_rows($check) > 0) return ["submit" => false, "message" => "exists"];
-        
-        pg_query_params($dbconn, "INSERT INTO account (user_id, kamei_id, name, password) VALUES ($1, $2, $3, $4)", 
+
+        $response = [];
+        if (pg_num_rows($check) > 0){
+            $response = ["submit" => false];
+        } else {
+            pg_query_params($dbconn, "INSERT INTO account (user_id, kamei_id, name, password) VALUES ($1, $2, $3, $4)", 
             [$data['user_id'], $data['kamei_id'], $data['name'], $data['password']]);
-        return ["submit" => true];
+            $response = ["submit" => true,"user_id" => $data['user_id'],"password" => $data['password']];
+        }
+
+        return $response;
     }
 
     // 2. ログイン
@@ -36,7 +42,7 @@ function handleAndroidRequest($dbconn, $data) {
     }
 
     // 3. 出席管理 (出席・遅刻・早退・退席)
-    if (isset($data['user_id'], $data['subject_id'], $data['time'], $data['status'], $data['room'])) {
+    if (isset($data['user_id'], $data['subject_id'], $data['datetime'], $data['status'], $data['room'])) {
         return processAttendance($dbconn, $data);
     }
 
@@ -51,8 +57,8 @@ function processAttendance($dbconn, $data) {
     if ($status >= 3) {
         $sql = "UPDATE stu_record SET checkout = $1 " . ($status == 3 ? ", status = $4 " : "") . 
                "WHERE user_id = $2 AND subject_id = $3 AND checkout IS NULL";
-        $params = ($status == 3) ? [$data['time'], $data['user_id'], $data['subject_id'], $status] 
-                                 : [$data['time'], $data['user_id'], $data['subject_id']];
+        $params = ($status == 3) ? [$data['datetime'], $data['user_id'], $data['subject_id'], $status] 
+                                 : [$data['datetime'], $data['user_id'], $data['subject_id']];
         $res = pg_query_params($dbconn, $sql, $params);
         if($res){
             $sql = "UPDATE room_state SET human_cnt = human_cnt - 1 WHERE room_num = $1 AND human_cnt > 0";
