@@ -12,7 +12,7 @@ import java.util.stream.Collectors;
 
 public class DatabaseTester {
 
-    private static final String TARGET_URL = "http://localhost/api/api_main.php";
+    private static final String TARGET_URL = "http://10.100.56.161/api/api_main.php";
 
     public static void main(String[] args) {
         Thread testThread = new Thread(() -> {

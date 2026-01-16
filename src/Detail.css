@@ -1,0 +1,55 @@
+body{
+    margin: 0;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+/*全体のコンテナ*/
+.sita-container{
+    width: 99.5%;/*全画面横幅*/
+}
+/*タブ*/
+.tabs{
+    display: grid;
+    /*タブ3つは固定幅残りは全幅*/
+    grid-template-columns: repeat(3,5%) 1fr;/*タブ横幅*/
+    height: 6%;/*タブ縦幅*/
+}
+/*各タブ*/
+.tab{
+    /*文字を中央に配置*/
+    display: grid;
+    justify-content: center;
+    align-items: center;
+    border: 2px solid #000;/*枠線*/
+    margin-right: -2px;/*ボーダーが重なって太くなるのを防ぐ*/
+}
+.tab2{
+    /*文字を中央に配置*/
+    display: grid;
+    justify-content: center;
+    align-items: center;
+    border: 2px solid #000;/*枠線*/
+    border-bottom: none;/*下の線は消して本体と繋げる*/
+    margin-right: -2px;/*ボーダーが重なって太くなるのを防ぐ*/
+}
+.tab3{
+    /*文字を中央に配置*/
+    display: grid;
+    justify-content: center;
+    align-items: center;
+    border: 2px solid #000;/*枠線*/
+    margin-right: -2px;/*ボーダーが重なって太くなるのを防ぐ*/
+}
+/*タブの右側の直線*/
+.tab-right{
+    border-bottom: 2px solid #000;
+    align-self: end;/*下側に線を配置*/
+}
+/*下側の大きな箱*/
+.detail{
+    height: 93.5%;/*画面高さ*/
+    border: 2px solid #000;
+    border-top: none;/*上の線はタブ側で表現するので消す*/
+}

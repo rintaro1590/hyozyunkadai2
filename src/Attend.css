@@ -1,0 +1,148 @@
+body{
+    margin: 0;
+    height: 100vh;
+    background-color: white; /* 背景色をつけると見やすくなります */
+}
+/*全体のコンテナ*/
+.sita-container{
+    width: 100%;/*全画面横幅*/
+    margin: 0;
+}
+/*タブ*/
+.tabs{
+    display: grid;
+    /*タブ3つは固定幅残りは全幅*/
+    grid-template-columns: repeat(3,5%) 1fr;/*タブ横幅*/
+    /*grid-template-columns: repeat(3,9%) 1fr;*/
+    height: 6%;/*タブ縦幅*/
+}
+/*各タブ*/
+.tab{
+    /*文字を中央に配置*/
+    display: grid;
+    justify-content: center;
+    align-items: center;
+    border: 2px solid #000;/*枠線*/
+    margin-right: -2px;/*ボーダーが重なって太くなるのを防ぐ*/
+}
+.tab2{
+    /*文字を中央に配置*/
+    display: grid;
+    justify-content: center;
+    align-items: center;
+    border: 2px solid #000;/*枠線*/
+    margin-right: -2px;/*ボーダーが重なって太くなるのを防ぐ*/
+}
+.tab3{
+    /*文字を中央に配置*/
+    display: grid;
+    justify-content: center;
+    align-items: center;
+    border: 2px solid #000;/*枠線*/
+    border-bottom: none;/*下の線は消して本体と繋げる*/
+    margin-right: -2px;/*ボーダーが重なって太くなるのを防ぐ*/
+}
+/*タブの右側の直線*/
+.tab-right{
+    border-bottom: 2px solid #000;
+    align-self: end;/*下側に線を配置*/
+}
+/*下側の大きな箱*/
+.choice{
+    height: 93.5%;/*画面高さ*/
+    border: 2px solid #000;
+    border-top: none;/*上の線はタブ側で表現するので消す*/
+}
+
+
+
+/*タブレット用のスタイル---*/
+@media(max-width:768px){
+    /*全体のコンテナ*/
+    .sita-container{
+        width: 100%;/*全画面横幅*/
+    }
+    /*タブ*/
+    .tabs{
+        display: none;/*非表示*/
+    }
+    /*各タブ*/
+    .tab{
+        display: none;/*非表示*/
+    }
+    .tab2{
+        display: none;/*非表示*/
+    }
+    .tab3{
+        display: none;/*非表示*/
+    }
+    .tab-right{
+        display: none;/*非表示*/
+    }
+    .choice{
+        height: 100%;/*画面高さ*/
+        border: none;/*非表示*/
+    }
+}
+
+/* 追加 */
+/* 外枠の設定  */
+.screen-container {
+    width: 360px;
+    height: 800px;
+    margin: 20px auto;
+    background: white; /* フォームを白く浮かせる */
+    border-radius: 8px;
+    padding: 20px;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.input-group {
+    display: flex;
+    align-items: center;
+    margin-bottom: 25px;
+}
+
+.input-group label {
+    width: 60px;
+    font-size: 14px;
+}
+
+.input-group select {
+    flex: 1;
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    background-color: #fff;
+}
+
+/* 名前表示エリア  */
+.name-display {
+    margin: 30px 0;
+    text-align: center;
+    font-size: 18px;
+    color: #666;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 10px;
+}
+
+/* 検索ボタン  */
+.button-area {
+    text-align: right;
+}
+
+.search-btn {
+    background-color: #fff;
+    border: 1px solid #999;
+    padding: 5px 15px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+.search-btn:hover {
+    background-color: #f0f0f0;
+}

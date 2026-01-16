@@ -3,6 +3,7 @@ header('Content-Type: application/json; charset=utf-8');
 require_once 'db_config.php';
 require_once 'arduino_logic.php';
 require_once 'android_logic.php';
+require_once 'in_logic.php';
 
 $dbconn = getDbConnection(); // db_config.phpから読み込み
 $data = json_decode(file_get_contents('php://input'), true);
@@ -21,6 +22,9 @@ switch ($data['type']) {
         break;
     case 'Android':
         $response = handleAndroidRequest($dbconn, $data);
+        break;
+    case 'In': 
+        $response = handleInRequest($dbconn, $data);
         break;
     default:
         $response = ["status" => "error", "message" => "Unknown type"];
