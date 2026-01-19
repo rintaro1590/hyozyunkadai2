@@ -53,7 +53,7 @@ volatile int vibration_count = 0; // 振動のカウント数(振動レベル送
 const volatile int vibration_threshold = 0; // 振動レベルの閾値
 unsigned long last_vibration_time = 0; // 最後に振動を検知した時刻
 bool is_vibrating = false; // 現在「揺れている最中」かどうかのフラグ
-const unsigned long VIBRATION_TIMEOUT = 2000; // 1分間振動がなければ収束とみなす
+const unsigned long VIBRATION_TIMEOUT = 60000; // 1分間振動がなければ収束とみなす
 
 
 // 送信用データの格納
