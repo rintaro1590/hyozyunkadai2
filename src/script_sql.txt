@@ -24,7 +24,7 @@ create table quake_record (
 
 create table room_state (
 	room_num varchar(10) primary key,
-	lit boolean default false,
+	lit int default 0,
 	human_cnt int default 0
 );
 

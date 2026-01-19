@@ -112,7 +112,7 @@ body{
     border-bottom: none;
     background-color: #fffafa;
 }
-/*504*/
+/*504-------------------------------------------------------------------*/
 .fivefour{
     /*場所決め*/
     grid-column: 2 / span 2;/*横*/
@@ -121,7 +121,32 @@ body{
     border-top: none;
     border-left: none;
     background-color: #fffafa;
+    /*割合決め*/
+    position: relative;
 }
+/*部屋番号*/
+.zero{
+    display: flex;
+    justify-content: center; /*左右中央*/
+    font-size: 40px;
+}
+/*504人*/
+.fhito{
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    width:120;
+    height:120;
+}
+/*504温度計*/
+.f_ondo{
+    position: absolute;
+    top:25px;
+    right: 0px;
+    width:70;
+    height:80;
+}
+
 /*階段1*/
 .stairs{
     /*場所決め*/
@@ -133,7 +158,7 @@ body{
     border-left: none;
     background-color: #fffafa;
 }
-/*502*/
+/*502-------------------------------------------------------------------*/
 .fivetwo{
     /*場所決め*/
     grid-column: 1;/*横*/
@@ -141,7 +166,26 @@ body{
     border: 2px solid #000;
     border-left: none;
     background-color: #fffafa;
+    /*割合決め*/
+    position: relative;
 }
+/*502人*/
+.thito{
+    position: absolute;
+    bottom: 0px;
+    left: 0px;
+    width:120;
+    height:120;
+}
+/*502温度計*/
+.t_ondo{
+    position: absolute;
+    top: 50px;
+    right: 0px;
+    width:70;
+    height:80;
+}
+
 /*階段2*/
 .stairs2{
     /*場所決め*/
@@ -152,7 +196,7 @@ body{
     border-bottom: none;
     background-color: #fffafa;
 }
-/*506*/
+/*506-------------------------------------------------------------------*/
 .xbox{
     grid-column: 2 / 5;
     grid-row: 3 / 10;
@@ -167,9 +211,34 @@ body{
     height: 100%;
     background-color: #fffafa;
     clip-path: polygon(88% 10%,100% 29%,34% 100%,22% 80%);
+    /*割合決め*/
+    position: relative;
+}
+/*506部屋番号*/
+.szero{
+    position: absolute;
+    top:210px;
+    right: 190;
+    font-size: 40px;
+}
+/*506人*/
+.shito{
+    position: absolute;
+    top: 295px;
+    left: 168px;
+    width:120;
+    height:120;
+}
+/*506温度計*/
+.s_ondo{
+    position: absolute;
+    top: 70px;
+    right: 40px;
+    width:70;
+    height:80;
 }
 
-/*気温等*/
+/*気温等-----------------------------------------------------------------*/
 .temp{
     grid-row: 2;
     grid-column: 1;
@@ -184,6 +253,7 @@ body{
     font-size: 40px;
     /*background-color: green;*/
 }
+
 
 /*画面右*/
 .rightbox{

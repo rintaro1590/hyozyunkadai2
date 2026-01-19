@@ -72,7 +72,7 @@ function processAttendance($dbconn, $data) {
                 SELECT $1, $2, $3, $4 WHERE NOT EXISTS (
                     SELECT 1 FROM stu_record WHERE user_id = $1 AND checkout IS NULL
                 )";
-        $res = pg_query_params($dbconn, $sql, [$data['user_id'], $data['subject_id'], $data['time'], $status]);
+        $res = pg_query_params($dbconn, $sql, [$data['user_id'], $data['subject_id'], $data['datetime'], $status]);
         if($res){
             $sql = "UPDATE room_state SET human_cnt = human_cnt + 1 WHERE room_num = $1";
             pg_query_params($dbconn, $sql, array($data['room']));

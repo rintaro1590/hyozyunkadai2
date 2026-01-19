@@ -1,3 +1,47 @@
+// ページ読み込み時に実行
+// ページ読み込み完了時に実行
+window.addEventListener('DOMContentLoaded', async () => {
+    await loadDepartments();
+});
+
+async function loadDepartments() {
+    const deptSelect = document.getElementById('department');
+    
+    // api_main.php に送るリクエストデータ
+    const requestData = {
+        type: 'In',
+        data: 'kamei'
+    };
+
+    try {
+        const response = await fetch('../api/api_main.php', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(requestData)
+        });
+
+        const result = await response.json();
+
+        if (result.status) {
+            // セレクトボックスの初期化
+            deptSelect.innerHTML = '<option value="">選択してください</option>';
+            
+            // 取得したデータから選択肢を生成
+            result.data.forEach(dept => {
+                const option = document.createElement('option');
+                option.value = dept.id;
+                option.textContent = dept.name;
+                deptSelect.appendChild(option);
+            });
+        }
+    } catch (error) {
+        console.error('科名の取得に失敗しました:', error);
+        deptSelect.innerHTML = '<option value="">エラーが発生しました</option>';
+    }
+}
+
 async function updateNumbers() {
     const now = new Date();
     const yearShort = now.getFullYear() % 100;

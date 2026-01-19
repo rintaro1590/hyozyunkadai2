@@ -18,6 +18,22 @@ function handleInRequest($dbconn, $data) {
         }
         return ["status" => "success", "numbers" => $numbers];
     }
+
+    if (isset($data['kamei'])){
+        $result = pg_query_params($dbconn, "SELECT * from kamei");
+
+        $kamei = [];
+        if ($result){
+            $rows = pg_fetch_all($result);
+            if ($rows){
+                foreach ($rows as $row) {
+                    $kamei['kamei_id'] = $row['kamei_id'];
+                    $kamei['kamei_mei'] = $row['kamei_mei'];
+                }
+            }
+        }
+        return ["status" => true,"kamei" => $kamei];
+    }
     return ["status" => "error", "message" => "Parameter missing"];
 }
 ?>

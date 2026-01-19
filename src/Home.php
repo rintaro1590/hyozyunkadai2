@@ -20,17 +20,39 @@ echo "<div class='sita-container'>";
     echo "<div class='home'>";
         echo "<div class='leftbox'>";
             echo "<div class='room'>";
+                //5階
                 echo "<div class='five'>";
+                    //職員室
                     echo "<div class='teacher'></div>";
-                    echo "<div class='fivefour'></div>";
+                    //0-504
+                    echo "<div class='fivefour'>";
+                        echo "<div class='zero'>0-504</div>";
+                        echo "<img src='syasin/人.png' class='fhito'>";
+                        echo "<img src='syasin/ondokei1.png' class='f_ondo'>";
+                    echo "</div>";
+                    //階段1
                     echo "<div class='stairs'></div>";
-                    echo "<div class='fivetwo'></div>";
+                    //0-502
+                    echo "<div class='fivetwo'>";
+                        echo "<div class='zero'>0-502</div>";
+                        echo "<img src='syasin/人.png' class='thito'>";
+                        echo "<img src='syasin/ondokei2.png' class='t_ondo'>";
+                    echo "</div>";
+                    //階段2
                     echo "<div class='stairs2'></div>";
+                    //0-506
                     echo "<div class='xbox'>";
-                        echo "<div class='fivesix'></div>";
+                        echo "<div class='fivesix'>";
+                            echo "<div class='szero'>0-506</div>";
+                            echo "<img src='syasin/人.png' class='shito'>";
+                            echo "<img src='syasin/ondokei3.png' class='s_ondo'>";
+                        echo"</div>";
                     echo "</div>";
                 echo "</div>";
             echo "</div>";
+
+
+            //気温等
             echo "<div class='temp'>";
                 if(!$dbconn){
                     echo "接続エラーが発生しました。";
@@ -54,7 +76,8 @@ echo "<div class='sita-container'>";
                 }
             echo "</div>";
         echo "</div>";
-        echo "<div class='rightbox'></div>";
+        echo "<div class='rightbox'>";
+        echo "</div>";
     echo "</div>";
 echo "</div>";
 ?>
