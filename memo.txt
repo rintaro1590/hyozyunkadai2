@@ -1,0 +1,4 @@
+2026/01/20
+Apacheの設定
+デフォルトルートを/var/www/html/kanri/Home.phpにするとArduinoやAndroidがapi_mainにアクセスできなくなる(たぶん)
+デフォルトルートはそのままで/var/www/html/Home.phpにアクセスさせる(kanriフォルダーにあるファイルは全て/var/www/htmlに移動させる)
