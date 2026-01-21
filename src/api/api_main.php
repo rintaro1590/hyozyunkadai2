@@ -16,18 +16,22 @@ if (!$data || !isset($data['type'])) {
 }
 
 $response = [];
-switch ($data['type']) {
-    case 'Arduino':
-        $response = handleArduinoRequest($dbconn, $data);
-        break;
-    case 'Android':
-        $response = handleAndroidRequest($dbconn, $data);
-        break;
-    case 'In': 
-        $response = handleInRequest($dbconn, $data);
-        break;
-    default:
-        $response = ["status" => "error", "message" => "Unknown type"];
+try {
+    switch ($data['type']) {
+        case 'Arduino':
+            $response = handleArduinoRequest($dbconn, $data);
+            break;
+        case 'Android':
+            $response = handleAndroidRequest($dbconn, $data);
+            break;
+        case 'In': 
+            $response = handleInRequest($dbconn, $data);
+            break;
+        default:
+            $response = ["status" => "error", "message" => "Unknown type"];
+    }
+} catch (Exception $e) {
+    $response = ["status" => "error", "message" => "Exception: " . $e->getMessage()];
 }
 
 // --- 追加部分：レスポンスJSONをテキストファイルに保存 ---

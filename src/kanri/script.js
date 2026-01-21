@@ -1,4 +1,3 @@
-// ページ読み込み時に実行
 // ページ読み込み完了時に実行
 window.addEventListener('DOMContentLoaded', async () => {
     await loadDepartments();
@@ -29,10 +28,10 @@ async function loadDepartments() {
             deptSelect.innerHTML = '<option value="">選択してください</option>';
             
             // 取得したデータから選択肢を生成
-            result.data.forEach(dept => {
+            result.kamei.forEach(dept => {
                 const option = document.createElement('option');
-                option.value = dept.id;
-                option.textContent = dept.name;
+                option.value = dept.kamei_id;
+                option.textContent = dept.kamei_mei;
                 deptSelect.appendChild(option);
             });
         }
@@ -68,10 +67,11 @@ async function updateNumbers() {
     // 確認のためにコンソールに出す
     console.log("生成されたベースID:", id);
 
-    // api_main.php の仕様に合わせてJSONデータを作成
+    // JSONデータを作成
     const requestData = {
         type: 'In',
-        user_id: id
+        data: 'user_id',
+        user_id_min: id
     };
 
     try {
@@ -87,7 +87,7 @@ async function updateNumbers() {
 
         numberSelect.innerHTML = '<option value="">選択してください</option>';
 
-        if (result.status === "success" && result.numbers.length > 0) {
+        if (result.status && result.numbers.length > 0) {
             result.numbers.forEach(num => {
                 const option = document.createElement('option');
                 option.value = num;
@@ -105,6 +105,9 @@ async function updateNumbers() {
 }
 
 async function searchStudent() {
+    const now = new Date();
+    const yearShort = now.getFullYear() % 100;
+    const month = now.getMonth();
     const deptId = document.getElementById('department').value;
     const grade = document.getElementById('grade').value;
     const number = document.getElementById('number').value;
@@ -115,12 +118,21 @@ async function searchStudent() {
         return;
     }
 
-    // --- IDの組み立てロジック ---
-    // 例: 26 (年) + 7 (科ID) + 00 (固定) の 26700 がベース
-    // そこに 1 (番号) を足して 26701 を作る
-    const now = new Date();
-    const yearShort = now.getFullYear() % 100;
-    const baseId = (yearShort * 1000) + (Number(deptId) * 100);
+    let baseId = 0; 
+    
+    if (!deptId || !grade) {
+        numberSelect.innerHTML = '<option value="">選択してください</option>';
+        return;
+    } else {
+
+        if (month > 3) {
+            baseId = (yearShort * 1000) + (Number(deptId) * 100);
+        } else {
+            baseId = ((yearShort - grade) * 1000) + (Number(deptId) * 100);
+        }
+        
+    }
+    
     const userId = baseId + Number(number); 
 
     console.log("検索するユーザーID:", userId);
@@ -130,15 +142,16 @@ async function searchStudent() {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-                type: 'GetName',
+                type: 'In',
+                data: 'user_name',
                 user_id: userId
             })
         });
 
         const result = await response.json();
 
-        if (result.status === "success") {
-            resultDiv.innerText = result.name; // 名前を表示
+        if (result.status) {
+            resultDiv.innerText = result.username; // 名前を表示
             resultDiv.style.color = "#000";
         } else {
             resultDiv.innerText = "学生が見つかりません";

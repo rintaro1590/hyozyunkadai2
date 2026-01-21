@@ -16,7 +16,7 @@
             <div class="form-box">
                 <div class="input-group">
                     <label>科名</label>
-                    <select id="department" onchange="loadDepartments()">
+                    <select id="department">
                         <option value="">読み込み中...</option>
                     </select>
                 </div>
