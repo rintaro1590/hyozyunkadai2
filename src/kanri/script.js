@@ -44,30 +44,31 @@ async function loadDepartments() {
 async function updateNumbers() {
     const now = new Date();
     const yearShort = now.getFullYear() % 100;
-    const month = now.getMonth();
+    const month = now.getMonth() + 1; // getMonth()は0-11なので、現在の月を正しく判定
     const deptId = document.getElementById('department').value;
     const grade = document.getElementById('grade').value;
     const numberSelect = document.getElementById('number');
-    
-    let id = 0; 
-    
+    const resultDiv = document.getElementById('name-result'); // 名前表示もリセット用
+
+    // 科名か学年が選ばれていない場合は、番号を初期化して終了
     if (!deptId || !grade) {
         numberSelect.innerHTML = '<option value="">選択してください</option>';
+        resultDiv.innerText = "名前を表示"; // 科名や学年を変えたら名前表示も消す
         return;
-    } else {
-
-        if (month > 3) {
-            id = (yearShort * 1000) + (Number(deptId) * 100);
-        } else {
-            id = ((yearShort - grade) * 1000) + (Number(deptId) * 100);
-        }
-        
     }
 
-    // 確認のためにコンソールに出す
+    // ID計算ロジック
+    let id = 0;
+    if (month >= 4) { // 4月以降（年度内）
+        // 1年生なら今年、2年生なら去年入学
+        id = ((yearShort - (grade - 1)) * 1000) + (Number(deptId) * 100);
+    } else { // 1月〜3月
+        // 1年生なら去年、2年生なら一昨年入学
+        id = ((yearShort - grade) * 1000) + (Number(deptId) * 100);
+    }
+
     console.log("生成されたベースID:", id);
 
-    // JSONデータを作成
     const requestData = {
         type: 'In',
         data: 'user_id',
@@ -75,19 +76,18 @@ async function updateNumbers() {
     };
 
     try {
+        numberSelect.innerHTML = '<option value="">読み込み中...</option>';
+        
         const response = await fetch('../api/api_main.php', {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(requestData) // JSON形式で送信
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(requestData)
         });
 
         const result = await response.json();
-
         numberSelect.innerHTML = '<option value="">選択してください</option>';
 
-        if (result.status && result.numbers.length > 0) {
+        if (result.status && result.numbers && result.numbers.length > 0) {
             result.numbers.forEach(num => {
                 const option = document.createElement('option');
                 option.value = num;
@@ -95,49 +95,51 @@ async function updateNumbers() {
                 numberSelect.appendChild(option);
             });
         } else {
-            const option = document.createElement('option');
-            option.textContent = "該当なし";
-            numberSelect.appendChild(option);
+            numberSelect.innerHTML = '<option value="">該当なし</option>';
         }
     } catch (error) {
         console.error('通信エラー:', error);
+        numberSelect.innerHTML = '<option value="">エラー</option>';
     }
 }
 
 async function searchStudent() {
-    const now = new Date();
-    const yearShort = now.getFullYear() % 100;
-    const month = now.getMonth();
     const deptId = document.getElementById('department').value;
     const grade = document.getElementById('grade').value;
     const number = document.getElementById('number').value;
     const resultDiv = document.getElementById('name-result');
 
-    if (!deptId || !grade || !number) {
-        alert("すべての項目を選択してください");
+    // 番号が空（選択してください）の場合は表示をリセットして終了
+    if (!number) {
+        resultDiv.innerText = "名前を表示";
+        resultDiv.style.color = "#666";
         return;
     }
 
-    let baseId = 0; 
-    
+    // すべての要素が揃っているかチェック
     if (!deptId || !grade) {
-        numberSelect.innerHTML = '<option value="">選択してください</option>';
+        alert("科名と学年を先に選択してください");
         return;
-    } else {
+    }
 
-        if (month > 3) {
-            baseId = (yearShort * 1000) + (Number(deptId) * 100);
-        } else {
-            baseId = ((yearShort - grade) * 1000) + (Number(deptId) * 100);
-        }
-        
+    // IDの計算ロジック（updateNumbersと同じロジックにする）
+    const now = new Date();
+    const yearShort = now.getFullYear() % 100;
+    const month = now.getMonth() + 1;
+    let baseId = 0;
+
+    if (month >= 4) {
+        baseId = ((yearShort - (grade - 1)) * 1000) + (Number(deptId) * 100);
+    } else {
+        baseId = ((yearShort - grade) * 1000) + (Number(deptId) * 100);
     }
     
+    // 最終的なユーザーID (例: 24101)
     const userId = baseId + Number(number); 
 
-    console.log("検索するユーザーID:", userId);
-
     try {
+        resultDiv.innerText = "読み込み中...";
+        
         const response = await fetch('../api/api_main.php', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -159,5 +161,6 @@ async function searchStudent() {
         }
     } catch (error) {
         console.error("名前の取得に失敗:", error);
+        resultDiv.innerText = "通信エラー";
     }
 }

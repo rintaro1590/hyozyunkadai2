@@ -1,10 +1,7 @@
-body {
-    font-family: "Helvetica", "Arial", "Hiragino Kaku Gothic ProN", "Meiryo", sans-serif;
-    background-color: #f0f0f0;
+body{
     margin: 0;
-    display: flex;
-    justify-content: center;
-    padding-top: 50px;
+    height: 100vh;
+    background-color: white; /* 背景色をつけると見やすくなります */
 }
 /*全体のコンテナ*/
 .sita-container{
