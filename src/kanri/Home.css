@@ -120,7 +120,7 @@ body{
     border: 2px solid #000;
     border-top: none;
     border-left: none;
-    background-color: #fffafa;
+    /*background-color: #fffafa;*/
     /*割合決め*/
     position: relative;
 }
@@ -144,7 +144,18 @@ body{
     top:25px;
     right: 0px;
     width:70;
-    height:80;
+    height:90;
+}
+/*504照明*/
+.denki1{
+    position: absolute;
+    top:30px;
+    right: 75px;
+    width: 75;
+    height: 75;
+    background-color: yellow;
+    border-radius: 50%;/*丸*/
+    border: 1px solid #000;
 }
 
 /*階段1*/
@@ -165,7 +176,7 @@ body{
     grid-row: 4 / span 4;/*縦*/
     border: 2px solid #000;
     border-left: none;
-    background-color: #fffafa;
+    /*background-color: #fffafa;*/
     /*割合決め*/
     position: relative;
 }
@@ -183,7 +194,18 @@ body{
     top: 50px;
     right: 0px;
     width:70;
-    height:80;
+    height:90;
+}
+/*502照明*/
+.denki2{
+    position: absolute;
+    bottom: 10px;
+    right: 10px;
+    width: 75;
+    height: 75;
+    background-color: black;
+    border-radius: 50%;/*丸*/
+    border: 1px solid #000;
 }
 
 /*階段2*/
@@ -209,7 +231,7 @@ body{
 .fivesix{
     width: 100%;
     height: 100%;
-    background-color: #fffafa;
+    /*background-color: #fffafa;*/
     clip-path: polygon(88% 10%,100% 29%,34% 100%,22% 80%);
     /*割合決め*/
     position: relative;
@@ -235,9 +257,34 @@ body{
     top: 70px;
     right: 40px;
     width:70;
-    height:80;
+    height:90;
+}
+/*506照明*/
+.denki3{
+    position: absolute;
+    top:130px;
+    right: 120px;
+    width: 75;
+    height: 75;
+    border-radius: 50%;/*丸*/
+    border: 1px solid #000;
 }
 
+/*アニメーションの定義*/
+@keyframes denki3{
+    0%,49.9%{
+        background-color: yellow;
+    }
+    50%,100%{
+        background-color: black;
+    }
+}
+/*アニメーションを適用するクラス*/
+.animate-denki3{
+    animation-name: denki3;
+    animation-duration: 2s;
+    animation-iteration-count: infinite;
+}
 /*気温等-----------------------------------------------------------------*/
 .temp{
     grid-row: 2;
@@ -255,11 +302,139 @@ body{
 }
 
 
-/*画面右*/
+/*画面右-----------------------------------------------------------------*/
 .rightbox{
     grid-row: 1;
     grid-column: 2;
     width: 100%;/*横幅*/
     height: 100%;/*高さ*/
-    /*background-color: greenyellow;*/
+    /*割合決め*/
+    display: grid;
+    grid-template-columns: repeat(8, 1fr);/*横*/
+    grid-template-rows: repeat(16, 1fr);/*縦*/
+}
+/*温度---------------------*/
+.o_wariai{
+    /*場所決め*/
+    grid-column: 3 / 8;/*横*/
+    grid-row: 2;/*縦*/
+    /*下揃え*/
+    display: grid;
+    align-items: end;
+    text-align: center;
+    font-size: 30px;
+}
+.o_moji{
+    grid-column: 2;
+    grid-row: 3 / 6;
+    /*中央揃え*/
+    display: grid;
+    place-items: center;
+    text-align: center;
+    font-size: 30px;
+}
+.o_sihyou{
+    grid-column: 3 / 8;
+    grid-row: 3 / 6;
+    border: 2px solid #000;/*枠線*/
+    background-color: #f5f5f5;
+    /*割合決め*/
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);/*横*/
+    grid-template-rows: 1fr;/*縦*/
+    place-items: center;
+}
+.syasin1{
+    grid-column: 1;
+    grid-row: 1;
+    width:90;
+    height:110;
+}
+.syasin2{
+    grid-column: 2;
+    grid-row: 1;
+    width:90;
+    height:110;
+}
+.syasin3{
+    grid-column: 3;
+    grid-row: 1;
+    width:90;
+    height:110;
+}
+/*湿度-----------------------*/
+.s_wariai{
+    grid-column: 3 / 8;
+    grid-row: 7;
+    display: grid;
+    align-items: end;
+    text-align: center;
+    font-size: 30px;
+}
+.s_moji{
+    grid-column: 2;
+    grid-row: 8 / 11;
+    display: grid;
+    place-items: center;
+    text-align: center;
+    font-size: 30px;
+}
+.s_sihyou{
+    grid-column: 3 / 8;
+    grid-row: 8 / 11;
+    border: 2px solid #000;
+    background: linear-gradient(to right,
+    #add8e6 33%,#00bfff 33%,#00bfff 67%,#1e90ff 67%)
+}
+/*照明------------------------*/
+.sh_wariai{
+    grid-column: 3 / 8;
+    grid-row: 12;
+    display: grid;
+    align-items: end;
+    text-align: center;
+    font-size: 30px;
+}
+.sh_moji{
+    grid-column: 2;
+    grid-row: 13 / 16;
+    display: grid;
+    place-items: center;
+    text-align: center;
+    font-size: 30px;
+}
+.sh_sihyou{
+    grid-column: 3 / 8;
+    grid-row: 13 /16;
+    border: 2px solid #000;
+    background-color: #f5f5f5;
+    /*割合決め*/
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);/*横*/
+    grid-template-rows: 1fr;/*縦*/
+    place-items: center;
+}
+.syoumei1{
+    grid-column: 1;
+    grid-row: 1;
+    width: 75;
+    height: 75;
+    background-color: yellow;
+    border-radius: 50%;/*丸*/
+    border: 1px solid #000;
+}
+.syoumei2{
+    grid-column: 2;
+    grid-row: 1;
+    width: 75;
+    height: 75;
+    border-radius: 50%;
+}
+.syoumei3{
+    grid-column: 3;
+    grid-row: 1;
+    width: 75;
+    height: 75;
+    background-color: black;
+    border-radius: 50%;
 }
