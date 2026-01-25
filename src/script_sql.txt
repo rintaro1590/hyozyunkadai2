@@ -5,6 +5,7 @@ drop table if exists kamei;
 drop table if exists account;
 drop table if exists subject;
 drop table if exists stu_record;
+drop table if exists period_master;
 
 create table env_record (
 	datetime timestamp,
@@ -24,7 +25,7 @@ create table quake_record (
 
 create table room_state (
 	room_num varchar(10) primary key,
-	lit int default 0,
+	lit boolean default false,
 	human_cnt int default 0
 );
 
@@ -51,10 +52,23 @@ create table subject (
 create table stu_record (
 	user_id int,
 	subject_id int,
+	room_num varchar(10),
 	checkin timestamp,
 	checkout timestamp,
 	status int
 );
+
+CREATE TABLE period_master (
+    period_id int PRIMARY KEY, 
+    start_time time,    
+    end_time time      
+);
+
+INSERT INTO period_master (period_id, start_time, end_time) VALUES
+(1, '08:50:00', '10:30:00'),
+(2, '10:35:00', '12:15:00'),
+(3, '13:00:00', '14:30:00'),
+(4, '14:35:00', '16:25:00');
 
 insert into room_state (room_num) values('0-502');
 insert into room_state (room_num) values('0-504');
@@ -71,11 +85,16 @@ insert into kamei (kamei_id,kamei_mei) values(8,'建築施工システム技術�
 
 insert into account (user_id, kamei_id,name,password) values (25702,7,'石川','student02');
 insert into account (user_id, kamei_id,name,password) values (25713,7,'佐藤凜汰朗','student13');
-insert into account (user_id, kamei_id,name,password,teacher) values (701,7,'宇野','teacher1',true);
-insert into account (user_id, kamei_id,name,password,teacher) values (702,7,'渡邊','teacher2',true);
-insert into account (user_id, kamei_id,name,password,teacher) values (703,7,'永野','teacher3',true);
+insert into account (user_id, kamei_id,name,password,teacher) values (1,0,'渡辺','teacher6',true);
+insert into account (user_id, kamei_id,name,password,teacher) values (701,7,'浅野','teacher1',true);
+insert into account (user_id, kamei_id,name,password,teacher) values (702,7,'宇野','teacher2',true);
+insert into account (user_id, kamei_id,name,password,teacher) values (703,7,'永野','teacher4',true);
+insert into account (user_id, kamei_id,name,password,teacher) values (704,7,'西山','teacher5',true);
+insert into account (user_id, kamei_id,name,password,teacher) values (705,7,'渡邊','teacher6',true);
 
-insert into subject (subject_id, user_id,subject_mei,basetime) values (7401,701,'組込みシステム構築課題実習','9000 minutes');
-insert into subject (subject_id, user_id,subject_mei,basetime) values (7402,701,'工業法規','1800 minutes');
+insert into subject (subject_id, user_id,subject_mei,basetime) values (7401,701,'工業技術英語','1800 minutes');
 insert into subject (subject_id, user_id,subject_mei,basetime) values (7403,702,'ディジタル回路応用設計実習','1800 minutes');
 insert into subject (subject_id, user_id,subject_mei,basetime) values (7404,703,'組込みデバイス設計実習','1800 minutes');
+insert into subject (subject_id, user_id,subject_mei,basetime) values (7404,703,'組込みデバイス設計実習','1800 minutes');
+insert into subject (subject_id, user_id,subject_mei,basetime) values (7404,703,'組込みデバイス設計実習','1800 minutes');
+insert into subject (subject_id, user_id,subject_mei,basetime) values (7401,701,'組込みシステム構築課題実習','9000 minutes');

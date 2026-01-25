@@ -1,0 +1,20 @@
+# --- 設定 (URLは環境に合わせてください) ---
+$uri = "http://localhost/src/api/api_main.php" 
+$headers = @{"Content-Type"="application/json"}
+
+# --- 送信データ (Android形式) ---
+$body = @{
+  type       = "Android"    # api_main.phpの振り分けに必須
+  user_id    = 25702
+  subject_id = 7402
+  datetime   = "2026-01-29 10:25:43"
+  status     = 1
+  room       = "0-504"
+} | ConvertTo-Json
+
+# --- 実行と表示 ---
+Write-Host "--- Sending Attendance Request ---" -ForegroundColor Cyan
+$response = Invoke-RestMethod -Uri $uri -Method Post -Headers $headers -Body $body
+
+Write-Host "`n--- Received JSON Data ---" -ForegroundColor Yellow
+$response | ConvertTo-Json
