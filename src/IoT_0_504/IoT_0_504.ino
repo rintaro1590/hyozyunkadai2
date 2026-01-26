@@ -23,7 +23,6 @@ Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
 #define DHTTYPE DHT11
 #define LIGHT_SENSOR_PIN A0
 
-// --- センサ・通信用インスタンス ---
 DHT dht(DHTPIN, DHTTYPE);
 const int chipSelectPin = 10;
 SPISettings scp1000Settings(1000000, MSBFIRST, SPI_MODE0);
@@ -36,29 +35,26 @@ IPAddress local_IP(10, 100, 56, 170);
 IPAddress gateway(10, 100, 56, 254);
 IPAddress subnet(255, 255, 255, 0);
 
-const int light_threshold = 100;
-const char *room = "0-504";
-const int send_time = 10;
-
-// --- グローバル変数 ---
 WiFiUDP ntpUDP;
 NTPClient timeClient(ntpUDP, "10.100.56.161", 32400);
 WiFiClient client;
-volatile bool alarm_fired = false;
-volatile bool vibration_detected = false;
 
-volatile int vibration_count = 0;
+// --- 設定値 ---
+const int light_threshold = 100;
+const char *room = "0-504";
+const int send_time = 3600;
 const int vibration_threshold = 80;
-const int vibration_time_threshold = 2000;
-unsigned long last_vibration_time = 0;
-bool is_vibrating = false;
+const int vibrationsensor_lowtimeout = 2000;
 const unsigned long VIBRATION_TIMEOUT = 10000;
 
-bool buzzer_active = false;
-int buzzer_step = 0;
-unsigned long next_buzzer_time = 0;
-
+// --- グローバル変数 ---
+volatile bool alarm_fired = false;
+volatile bool vibration_detected = false;
+volatile int vibration_count = 0;
+unsigned long last_vibration_time = 0;
+bool is_vibrating = false;
 unsigned long low_start_time = 0;
+
 char buf[64];
 float t = 0, h = 0, p = 0;
 int l = 0;
@@ -68,7 +64,6 @@ void connectWiFi();
 void syncTimeNTP();
 void getData();
 void wakeUpVibration();
-void alertBuzzer();
 void sendData(bool type);
 void printCurrentTime();
 void setNextIntervalAlarm(int intervalSeconds);
@@ -80,21 +75,15 @@ long readRegister(byte registerAddress, int numBytes);
 void dispOLED_env();
 void dispOLED_vib();
 void dispOLED_vibsensor_warn();
-void updateBuzzer();
 
-void setup()
-{
+void setup() {
   Serial.begin(115200);
-
-  // OLED初期化
-  if (!display.begin(SSD1306_SWITCHCAPVCC, SCREEN_ADDRESS))
-  {
+  if (!display.begin(SSD1306_SWITCHCAPVCC, SCREEN_ADDRESS)) {
     Serial.println(F("SSD1306 allocation failed"));
   }
   display.clearDisplay();
   display.setTextSize(1);
   display.setTextColor(SSD1306_WHITE);
-  display.setCursor(0, 0);
 
   pinMode(VIBRATION_PIN, INPUT_PULLUP);
   pinMode(BUZZER_PIN, OUTPUT);
@@ -107,7 +96,6 @@ void setup()
 
   connectWiFi();
   syncTimeNTP();
-
   getData();
   setNextIntervalAlarm(send_time);
   attachInterrupt(digitalPinToInterrupt(VIBRATION_PIN), wakeUpVibration, FALLING);
@@ -117,169 +105,86 @@ void setup()
   delay(100);
 }
 
-void loop()
-{
-  if (WiFi.status() != WL_CONNECTED)
-  {
+void loop() {
+  if (WiFi.status() != WL_CONNECTED) {
     connectWiFi();
   }
 
   int pinStatus = digitalRead(VIBRATION_PIN);
-  if (pinStatus == LOW)
-  {
-    if (low_start_time == 0)
-      low_start_time = millis();
-    if (millis() - low_start_time > vibration_time_threshold)
-    {
-      Serial.println("【警告】振動センサがLOW固定です（LEDが点灯したままではありませんか？）");
+  if (pinStatus == LOW) {
+    if (low_start_time == 0) low_start_time = millis();
+    if (millis() - low_start_time > vibrationsensor_lowtimeout) {
       dispOLED_vibsensor_warn();
     }
-  }
-  else
-  {
+  } else {
     low_start_time = 0;
-    if (!is_vibrating)
-      dispOLED_env();
+    if (!is_vibrating) dispOLED_env();
   }
 
-  if (vibration_detected)
-  {
+  if (vibration_detected) {
     handleVibrationEvent();
     vibration_detected = false;
   }
 
-  if (alarm_fired)
-  {
+  if (alarm_fired) {
     handleTimerEvent();
     alarm_fired = false;
     setNextIntervalAlarm(send_time);
   }
-  updateBuzzer();
+  static unsigned long lastUpdate = 0;
+  if (millis() - lastUpdate > 2000) { // 2秒ごとにデータを更新
+    getData();
+    lastUpdate = millis();
+  }
   delay(100);
 }
 
-// --- OLED表示更新関数 ---
-void dispOLED_env()
-{
+void dispOLED_env() {
+  RTCTime now;
+  RTC.getTime(now);
   display.clearDisplay();
-  display.setTextSize(1);
   display.setCursor(0, 0);
-
-  // 日時表示
   char timeStr[20];
   sprintf(timeStr, "%04d/%02d/%02d %02d:%02d",
           now.getYear(), (int)now.getMonth() + 1, now.getDayOfMonth(),
           now.getHour(), now.getMinutes());
   display.println(timeStr);
   display.println("---------------------");
-
-  // センサ情報
-  display.print("room_num : "); // 1行空けて見やすく
-  display.println(room);
-  display.print("Temp : ");
-  display.print(t, 1);
-  display.println(" C");
-  display.print("Hum  : ");
-  display.print(h, 1);
-  display.println(" %");
-  display.print("Pres : ");
-  display.print(p, 1);
-  display.println(" hPa");
-  display.println(""); // 1行空ける
+  display.print("room : "); display.println(room);
+  display.print("Temp : "); display.print(t, 1); display.println(" C");
+  display.print("Hum  : "); display.print(h, 1); display.println(" %");
+  display.print("Pres : "); display.print(p, 1); display.println(" hPa");
+  display.print("LightVal:"); display.println((int)analogRead(LIGHT_SENSOR_PIN));
   display.print("Light: ");
-  if (l)
-    display.println("bright");
-  else
-    display.println("dark");
-
+  display.println(l ? "bright" : "dark");
   display.display();
 }
 
-void dispOLED_vib()
-{
+void dispOLED_vib() {
   display.clearDisplay();
-  display.setTextSize(1);
   display.setCursor(0, 0);
-  display.println("");
-  display.println("---------------------");
-
-  // センサ情報
-  display.println("");
-  display.println("Vibration Detected!!!");
-
+  display.println("\n---------------------\n\nVibration Detected!!!");
   display.display();
 }
 
-void dispOLED_vibsensor_warn()
-{
+void dispOLED_vibsensor_warn() {
   display.clearDisplay();
-  display.setTextSize(1);
   display.setCursor(0, 0);
-  display.println("");
-  display.println("---------------------");
-
-  // センサ情報
-  display.println("");
-  display.println("Warning : Vibration Sensor LOW!");
-
+  display.println("\n---------------------\n\nWarning : Vib LOW!");
   display.display();
 }
 
-void getData()
-{
+void getData() {
   h = dht.readHumidity();
   t = dht.readTemperature();
   unsigned long msb = readRegister(0x1F, 1);
   unsigned long lsb = readRegister(0x20, 2);
   unsigned long pressureRaw = ((msb & 0x07) << 16) | lsb;
   p = (pressureRaw / 4.0) / 100.0;
-  int lightValue = analogRead(LIGHT_SENSOR_PIN);
-  l = (lightValue > light_threshold) ? true : false;
-
-  Serial.print("lightValue : ");
-  Serial.println(lightValue);
+  l = (analogRead(LIGHT_SENSOR_PIN) > light_threshold);
 }
 
-void alertBuzzer()
-{
-  if (!buzzer_active)
-  {
-    buzzer_active = true;
-    buzzer_step = 0;
-    next_buzzer_time = millis();
-  }
-}
-
-void updateBuzzer()
-{
-  if (!buzzer_active)
-    return;
-  if (millis() >= next_buzzer_time)
-  {
-    if (buzzer_step < 6)
-    {
-      if (buzzer_step % 2 == 0)
-      {
-        digitalWrite(BUZZER_PIN, HIGH);
-        next_buzzer_time = millis() + 200;
-      }
-      else
-      {
-        digitalWrite(BUZZER_PIN, LOW);
-        next_buzzer_time = millis() + 100;
-      }
-      buzzer_step++;
-    }
-    else
-    {
-      digitalWrite(BUZZER_PIN, LOW);
-      buzzer_active = false;
-    }
-  }
-}
-
-void printCurrentTime()
-{
+void printCurrentTime() {
   RTCTime now;
   RTC.getTime(now);
   sprintf(buf, "%04d-%02d-%02d %02d:%02d:%02d",
@@ -288,100 +193,63 @@ void printCurrentTime()
   Serial.println(buf);
 }
 
-void connectWiFi()
-{
-  if (WiFi.status() != WL_CONNECTED)
-  {
-    WiFi.config(local_IP, gateway, subnet);
-    Serial.print("Connecting to WiFi...");
-    WiFi.begin(ssid, pass);
-    int timeout = 0;
-    while (WiFi.status() != WL_CONNECTED && timeout < 20)
-    {
-      delay(1000);
-      Serial.print(".");
-      timeout++;
-    }
-    if (WiFi.status() == WL_CONNECTED)
-    {
-      Serial.println("\nConnected!");
-    }
+void connectWiFi() {
+  if (WiFi.status() == WL_CONNECTED) return;
+  WiFi.config(local_IP, gateway, subnet);
+  WiFi.begin(ssid, pass);
+  int timeout = 0;
+  while (WiFi.status() != WL_CONNECTED && timeout < 20) {
+    delay(1000);
+    timeout++;
   }
 }
 
-void syncTimeNTP()
-{
-  if (WiFi.status() == WL_CONNECTED)
-  {
-    timeClient.begin();
-    if (timeClient.update())
-    {
-      RTCTime currentTime(timeClient.getEpochTime());
-      RTC.setTime(currentTime);
-      Serial.println("NTP Sync Success!");
-    }
+void syncTimeNTP() {
+  if (WiFi.status() != WL_CONNECTED) return;
+  timeClient.begin();
+  if (timeClient.update()) {
+    RTCTime currentTime(timeClient.getEpochTime());
+    RTC.setTime(currentTime);
   }
 }
 
-void sendData(bool type)
-{
-  if (WiFi.status() != WL_CONNECTED)
-    return;
-  if (client.connect(server_ip, 80))
-  {
+void sendData(bool type) {
+  if (WiFi.status() != WL_CONNECTED) return;
+  if (client.connect(server_ip, 80)) {
     StaticJsonDocument<200> doc;
     doc["type"] = "Arduino";
     doc["datetime"] = buf;
     doc["room"] = room;
-    if (type)
-    {
-      doc["temp"] = t;
-      doc["humid"] = h;
-      doc["press"] = p;
-      doc["light"] = l;
-    }
-    else
-    {
+    if (type) {
+      doc["temp"] = t; doc["humid"] = h; doc["press"] = p; doc["light"] = l;
+    } else {
       doc["quake"] = (int)vibration_count;
     }
     String jsonString;
     serializeJson(doc, jsonString);
     client.println("POST /api/api_main.php HTTP/1.1");
-    client.print("Host: ");
-    client.println(server_ip);
+    client.print("Host: "); client.println(server_ip);
     client.println("Content-Type: application/json");
-    client.print("Content-Length: ");
-    client.println(jsonString.length());
-    client.println("Connection: close");
-    client.println();
+    client.print("Content-Length: "); client.println(jsonString.length());
+    client.println("Connection: close\n");
     client.print(jsonString);
     client.stop();
-    Serial.println(jsonString);
   }
 }
 
-void setNextIntervalAlarm(int intervalSeconds)
-{
+void setNextIntervalAlarm(int intervalSeconds) {
   RTCTime now;
   RTC.getTime(now);
-  unsigned long currentEpoch = now.getUnixTime();
-  unsigned long nextEpoch = ((currentEpoch / intervalSeconds) + 1) * intervalSeconds;
+  unsigned long nextEpoch = ((now.getUnixTime() / intervalSeconds) + 1) * intervalSeconds;
   RTCTime alarmTime(nextEpoch);
   AlarmMatch match;
-  match.addMatchDay();
-  match.addMatchHour();
-  match.addMatchMinute();
-  match.addMatchSecond();
+  match.addMatchDay(); match.addMatchHour(); match.addMatchMinute(); match.addMatchSecond();
   RTC.setAlarmCallback(alarm_callback, alarmTime, match);
 }
 
-void alarm_callback()
-{
-  alarm_fired = true;
-}
+void alarm_callback() { alarm_fired = true; }
 
-void writeRegister(byte registerAddress, byte value)
-{
+void writeRegister(byte registerAddress, byte value) {
   byte address = registerAddress << 2 | 0x02;
   SPI.beginTransaction(scp1000Settings);
   digitalWrite(chipSelectPin, LOW);
@@ -391,76 +259,58 @@ void writeRegister(byte registerAddress, byte value)
   SPI.endTransaction();
 }
 
-long readRegister(byte registerAddress, int numBytes)
-{
+long readRegister(byte registerAddress, int numBytes) {
   byte address = registerAddress << 2;
   long result = 0;
   SPI.beginTransaction(scp1000Settings);
   digitalWrite(chipSelectPin, LOW);
   SPI.transfer(address);
-  for (int i = 0; i < numBytes; i++)
-  {
-    result = (result << 8) | SPI.transfer(0x00);
-  }
+  for (int i = 0; i < numBytes; i++) result = (result << 8) | SPI.transfer(0x00);
   digitalWrite(chipSelectPin, HIGH);
   SPI.endTransaction();
   return result;
 }
 
-void wakeUpVibration()
-{
-  vibration_detected = true;
-}
+void wakeUpVibration() { vibration_detected = true; }
 
-void handleVibrationEvent()
-{
+void handleVibrationEvent() {
   is_vibrating = true;
   vibration_count = 0;
   RTCTime startTime;
   RTC.getTime(startTime);
-  Serial.print("Vibration Detect ");
-  printCurrentTime();
   last_vibration_time = millis();
   bool last_pin_state = HIGH;
-  alertBuzzer();
 
-  while (millis() - last_vibration_time <= VIBRATION_TIMEOUT)
-  {
-    updateBuzzer();
+  while (millis() - last_vibration_time <= VIBRATION_TIMEOUT) {
     bool current_pin_state = digitalRead(VIBRATION_PIN);
-    if (current_pin_state == LOW && last_pin_state == HIGH)
-    {
+    if (current_pin_state == LOW && last_pin_state == HIGH) {
       vibration_count++;
       last_vibration_time = millis();
+      digitalWrite(BUZZER_PIN, HIGH);
+      delay(50);
+      digitalWrite(BUZZER_PIN, LOW);
     }
     last_pin_state = current_pin_state;
-    if (alarm_fired)
-    {
+    if (alarm_fired) {
       handleTimerEvent();
       alarm_fired = false;
       setNextIntervalAlarm(send_time);
     }
+    dispOLED_vib();
     delay(1);
   }
-
-  Serial.print("vibration_count : ");
-  Serial.println(vibration_count);
-
-  if (vibration_count > vibration_threshold)
-  {
+  
+  if (vibration_count > vibration_threshold) {
     sprintf(buf, "%04d-%02d-%02d %02d:%02d:%02d",
             startTime.getYear(), (int)startTime.getMonth() + 1, startTime.getDayOfMonth(),
             startTime.getHour(), startTime.getMinutes(), startTime.getSeconds());
     sendData(false);
   }
-  dispOLED_env();
   is_vibrating = false;
 }
 
-void handleTimerEvent()
-{
+void handleTimerEvent() {
   printCurrentTime();
   getData();
-  delay(100);
   sendData(true);
 }

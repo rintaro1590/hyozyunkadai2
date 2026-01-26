@@ -6,28 +6,47 @@
 </head>
 <body>
 <?php
+//データベース接続
 require_once '../api/db_config.php';
 $dbconn = getDbConnection();
 
+//初期値設定
 $row502 = null;
 $row504 = null;
 $row506 = null;
+$row502_syou = null;
+$row504_syou = null;
+$row506_syou = null;
 
 if($dbconn){
-    //0-502のデータ取得
+    //0-502のデータ取得-------------------------------------------------
     $query1 = "SELECT room_num,temperature,humidity,pressure FROM env_record WHERE room_num = '0-502' ORDER BY datetime DESC LIMIT 1";
     $result1 = pg_query($dbconn, $query1);
     if($result1) $row502 = pg_fetch_assoc($result1);
-    //0-504のデータ取得
+    //照明のデータベース
+    $query1_syou = "SELECT * FROM room_state WHERE room_num = '0-502'";
+    $result1_syou = pg_query($dbconn, $query1_syou);
+    if($result1_syou) $row502_syou = pg_fetch_assoc($result1_syou);
+
+    //0-504のデータ取得--------------------------------------------------
     $query2 = "SELECT room_num,temperature,humidity,pressure FROM env_record WHERE room_num = '0-504' ORDER BY datetime DESC LIMIT 1";
     $result2 = pg_query($dbconn, $query2);
     if($result2) $row504 = pg_fetch_assoc($result2);
-    //0-506のデータ取得
+    //照明のデータベース
+    $query2_syou = "SELECT * FROM room_state WHERE room_num = '0-504'";
+    $result2_syou = pg_query($dbconn, $query2_syou);
+    if($result2_syou) $row504_syou = pg_fetch_assoc($result2_syou);
+
+    //0-506のデータ取得---------------------------------------------------
     $query3 = "SELECT room_num,temperature,humidity,pressure FROM env_record WHERE room_num = '0-506' ORDER BY datetime DESC LIMIT 1";
     $result3 = pg_query($dbconn, $query3);
     if($result3) $row506 = pg_fetch_assoc($result3);
+    //照明のデータベース
+    $query3_syou = "SELECT * FROM room_state WHERE room_num = '0-506'";
+    $result3_syou = pg_query($dbconn, $query3_syou);
+    if($result3_syou) $row506_syou = pg_fetch_assoc($result3_syou);
 }
-//0-502
+//0-502-------------------------------------------------------------
 $temperature_502 = "syasin/ondokei.png";
 $bg_color_502 = "#fffafa";
 if($row502){
@@ -51,7 +70,24 @@ if($row502){
         $bg_color_502 = "#1e90ff";
     }
 }
-//0-504
+//照明
+$animate_502 = "";
+$denki_502 = "#fffafa";
+if($row502_syou){
+    $lit_502 = $row502_syou['lit'];//照明
+    $human_502 = $row502_syou['human_cnt'];//人カウント
+    if($lit_502 >= 1 && $human_502 == 0){
+        $animate_502 = " animate-denki3";
+        $denki_502 = "";
+    }elseif($lit_502 >= 1 && $human_502 >= 1){
+        $animate_502 = "";
+        $denki_502 = "yellow";
+    }else{
+        $animate_502 = "";
+        $denki_502 = "black";
+    }
+}
+//0-504---------------------------------------------------------------
 $temperature_504 = "syasin/ondokei.png";
 $bg_color_504 = "#fffafa";
 if($row504){
@@ -75,7 +111,24 @@ if($row504){
         $bg_color_504 = "#1e90ff";
     }
 }
-//0-506
+//照明
+$animate_504 = "";
+$denki_504 = "#fffafa";
+if($row504_syou){
+    $lit_504 = $row504_syou['lit'];//照明
+    $human_504 = $row504_syou['human_cnt'];//人カウント
+    if($lit_504 >= 1 && $human_504 == 0){
+        $animate_504 = " animate-denki3";
+        $denki_504 = "";
+    }elseif($lit_504 >= 1 && $human_504 >= 1){
+        $animate_504 = "";
+        $denki_504 = "yellow";
+    }else{
+        $animate_504 = "";
+        $denki_504 = "black";
+    }
+}
+//0-506---------------------------------------------------------------
 $temperature_506 = "syasin/ondokei.png";
 $bg_color_506 = "#fffafa";
 if($row506){
@@ -99,12 +152,29 @@ if($row506){
         $bg_color_506 = "#1e90ff";
     }
 }
+//照明
+$animate_506 = "";
+$denki_506 = "#fffafa";
+if($row506_syou){
+    $lit_506 = $row506_syou['lit'];//照明
+    $human_506 = $row506_syou['human_cnt'];//人カウント
+    if($lit_506 >= 1 && $human_506 == 0){
+        $animate_506 = " animate-denki3";
+        $denki_506 = "";
+    }elseif($lit_506 >= 1 && $human_506 >= 1){
+        $animate_506 = "";
+        $denki_506 = "yellow";
+    }else{
+        $animate_506 = "";
+        $denki_506 = "black";
+    }
+}
 
 echo "<div class='sita-container'>";
     echo "<div class='tabs'>";
         echo "<div class='tab'>ホーム</div>";
         echo "<div class='tab2'><a href='Detail.php'>詳細</a></div>";
-        echo "<div class='tab3'><a href='Choice.php'>出席</a></div>";
+        echo "<div class='tab3'><a href='Search.php'>出席</a></div>";
         echo "<div class='tab-right'></div>";
     echo "</div>";
     echo "<div class='home'>";
@@ -119,7 +189,8 @@ echo "<div class='sita-container'>";
                         echo "<div class='zero'>0-504</div>";
                         echo "<img src='syasin/人.png' class='fhito'>";
                         echo "<img src='{$temperature_504}' class='f_ondo'>";
-                        echo "<div class='denki1'></div>";
+                        echo "<div class='denki1{$animate_504}' style='background-color:{$denki_504};'></div>";
+                        echo "<div class='h_cnt1'>{$human_504}</div>";
                     echo "</div>";
                     //階段1
                     echo "<div class='stairs'></div>";
@@ -128,7 +199,8 @@ echo "<div class='sita-container'>";
                         echo "<div class='zero'>0-502</div>";
                         echo "<img src='syasin/人.png' class='thito'>";
                         echo "<img src='{$temperature_502}' class='t_ondo'>";
-                        echo "<div class='denki2'></div>";
+                        echo "<div class='denki2{$animate_502}' style='background-color:{$denki_502};'></div>";
+                        echo "<div class='h_cnt2'>{$human_502}</div>";
                     echo "</div>";
                     //階段2
                     echo "<div class='stairs2'></div>";
@@ -138,7 +210,8 @@ echo "<div class='sita-container'>";
                             echo "<div class='szero'>0-506</div>";
                             echo "<img src='syasin/人.png' class='shito'>";
                             echo "<img src='{$temperature_506}' class='s_ondo'>";
-                            echo "<div class='denki3 animate-denki3'></div>";
+                            echo "<div class='denki3{$animate_506}' style='background-color:{$denki_506};'></div>";
+                            echo "<div class='h_cnt3'>{$human_506}</div>";
                         echo"</div>";
                     echo "</div>";
                 echo "</div>";
@@ -149,33 +222,30 @@ echo "<div class='sita-container'>";
                 if(!$dbconn){
                     echo "接続エラーが発生しました。";
                 }else{
-                    // 0-502の表示
+                    //0-502の表示
                     if($row502){
                         echo htmlspecialchars($row502['room_num']) . "  ";
                         echo "気温" . htmlspecialchars($row502['temperature']) . "℃ ";
                         echo "湿度" . htmlspecialchars($row502['humidity']) . "% ";
-                        //echo "気圧" . htmlspecialchars($row502['pressure']) . "hPa<br>";
-                        echo "気圧" . number_format($row502['pressure'], 1) . "hPa<br>";
+                        echo "気圧" . number_format($row502['pressure'], 0) . "hPa<br>";
                     } else {
                         echo "0-502のデータ取得失敗<br>";
                     }
-                    // 0-504の表示
+                    //0-504の表示
                     if($row504){
                         echo htmlspecialchars($row504['room_num']) . "  ";
                         echo "気温" . htmlspecialchars($row504['temperature']) . "℃ ";
                         echo "湿度" . htmlspecialchars($row504['humidity']) . "% ";
-                        //echo "気圧" . htmlspecialchars($row504['pressure']) . "hPa<br>";
-                        echo "気圧" . number_format($row504['pressure'], 1) . "hPa<br>";
+                        echo "気圧" . number_format($row504['pressure'], 0) . "hPa<br>";
                     } else {
                         echo "0-504のデータ取得失敗<br>";
                     }
-                    // 0-506の表示
+                    //0-506の表示
                     if($row506){
                         echo htmlspecialchars($row506['room_num']) . "  ";
                         echo "気温" . htmlspecialchars($row506['temperature']) . "℃ ";
                         echo "湿度" . htmlspecialchars($row506['humidity']) . "% ";
-                        //echo "気圧" . htmlspecialchars($row506['pressure']) . "hPa<br>";
-                        echo "気圧" . number_format($row506['pressure'], 1) . "hPa<br>";
+                        echo "気圧" . number_format($row506['pressure'], 0) . "hPa<br>";
                     } else {
                         echo "0-506のデータ取得失敗<br>";
                     }
@@ -195,10 +265,12 @@ echo "<div class='sita-container'>";
                 echo "<img src='syasin/ondokei2.png' class='syasin2'>";
                 echo "<img src='syasin/ondokei3.png' class='syasin3'>";
             echo "</div>";
+            echo "<div class='o_setumei'>17℃　 23℃</div>";
             //湿度
             echo "<div class='s_moji'>湿度</div>";
             echo "<div class='s_wariai'>0%　　~　　100%</div>";
             echo "<div class='s_sihyou'></div>";
+            echo "<div class='s_setumei'>30%　 60%</div>";
             //照明
             echo "<div class='sh_moji'>照明</div>";
             echo "<div class='sh_wariai'>点灯　 点滅 　消灯</div>";
@@ -207,12 +279,13 @@ echo "<div class='sita-container'>";
                 echo "<div class='syoumei2 animate-denki3'></div>";
                 echo "<div class='syoumei3'></div>";
             echo "</div>";
+            echo "<div class='sh_setumei'>点滅は,点灯&人がいない状態</div>";
         echo "</div>";
     echo "</div>";
 echo "</div>";
 ?>
 <script>
-    // 1000ミリ秒 × 60秒 × 60分 = 3,600,000ミリ秒 (1時間)
+    //1000ミリ秒 × 60秒 × 60分 = 3,600,000ミリ秒 (1時間)
     setTimeout(function(){
         location.reload();
     }, 10000);

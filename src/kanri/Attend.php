@@ -3,7 +3,7 @@
 require_once '../api/db_config.php';
 $dbconn = getDbConnection();
 
-if (!$dbconn){
+if (!$dbconn) {
     exit('データベース接続失敗。');
 }
 
@@ -74,8 +74,17 @@ WHERE pm.period_id BETWEEN 1 AND 4
 ORDER BY pm.period_id;
 ";
 
+// 76行目付近
 $params = [$selected_date, $day_end_val, $user_id];
 $result = pg_query_params($dbconn, $sql, $params);
+
+// エラーハンドリングを追加
+if ($result === false) {
+    echo "SQL実行エラーが発生しました。<br>";
+    echo "エラー詳細: " . pg_last_error($dbconn);
+    exit; // 処理を中断
+}
+
 $results = pg_fetch_all($result) ?: [];
 
 // --- 成績一覧の取得 ---
@@ -102,12 +111,13 @@ $res_grades = pg_query_params($dbconn, $sql_grades, [$user_id]);
 $grades = pg_fetch_all($res_grades) ?: [];
 
 // 時間差分を「○時間○分」形式に変換する関数
-function formatDiffTime($total_minutes) {
+function formatDiffTime($total_minutes)
+{
     $total_minutes = max(0, (int)$total_minutes);
     if ($total_minutes === 0) return "";
     $hours = floor($total_minutes / 60);
     $minutes = $total_minutes % 60;
-    
+
     $res = "";
     if ($hours > 0) $res .= $hours . "時間";
     if ($minutes > 0) $res .= $minutes . "分";
@@ -116,11 +126,13 @@ function formatDiffTime($total_minutes) {
 ?>
 <!DOCTYPE html>
 <html lang="ja">
+
 <head>
     <link rel="stylesheet" type="text/css" href="Attend.css">
     <meta charset="UTF-8">
     <title>出席詳細</title>
 </head>
+
 <body>
     <div class='sita-container'>
         <div class='tabs'>
@@ -157,7 +169,7 @@ function formatDiffTime($total_minutes) {
                             <td><?php echo htmlspecialchars($row['start_time_disp']); ?></td>
                             <td><?php echo htmlspecialchars($row['end_time_disp']); ?></td>
                             <td>
-                                <?php 
+                                <?php
                                 if ($row['status'] !== null) {
                                     if ($row['status'] == 1) {
                                         echo "出席";
@@ -197,7 +209,7 @@ function formatDiffTime($total_minutes) {
                     </table>
                 </div>
             </div>
-            
+
             <div class="button-area" style="margin-top: 30px;">
                 <button class="search-btn" onclick="location.href='Search.php'">戻る</button>
             </div>
@@ -210,11 +222,12 @@ function formatDiffTime($total_minutes) {
         <input type="hidden" name="date" id="hidden-date">
     </form>
 
-<script>
-function postDateUpdate(selectedDate) {
-    document.getElementById('hidden-date').value = selectedDate;
-    document.getElementById('refresh-form').submit();
-}
-</script>
+    <script>
+        function postDateUpdate(selectedDate) {
+            document.getElementById('hidden-date').value = selectedDate;
+            document.getElementById('refresh-form').submit();
+        }
+    </script>
 </body>
+
 </html>

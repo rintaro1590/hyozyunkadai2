@@ -52,4 +52,148 @@ body{
     height: 93.5%;/*画面高さ*/
     border: 2px solid #000;
     border-top: none;/*上の線はタブ側で表現するので消す*/
+    /*割合決め*/
+    display: grid;
+    grid-template-rows: 1fr 7fr;
+}
+
+/*画面上*/
+.topbox{
+    grid-row: 1;
+    /*background-color: red;*/
+    /*割合決め*/
+    display: flex;
+    justify-content: center; /*横方向の真ん中に配置*/
+    align-items: center;     /*縦方向の真ん中に配置*/
+    gap: 30px;               /*ドロップダウン同士の隙間*/
+}
+/*ddリスト全体のコンテナ*/
+.dropdown-container{
+    position: relative; /*子要素のabsolute配置の基準*/
+    display: inline-block;
+    font-family: Arial, sans-serif;
+}
+/* ボタンのデザイン */
+.dropdown-btn{
+    padding: 10px 20px;
+    /*margin: 50px 10px 0px 200px;/*上、右、下、左*/
+    font-size: 30px;/*文字の大きさ*/
+    cursor: pointer;
+    /*color: white;*/
+    /*border: none;*/
+    border: 1px solid black;
+    border-radius: 4px;
+    min-width: 200px; /*幅を固定してガタつきを防ぐ*/
+    /*height: 67px;*/
+    text-align: left;
+}
+/*リスト部分*/
+.dropdown-list{
+    display: none; /*最初は隠す*/
+    position: absolute; /*ボタンの下に浮かせて配置*/
+    font-size: 30px;/*リスト内の文字の大きさ*/
+    top: 100%; /*ボタンの真下に配置*/
+    left: 0;
+    width: 100%; /*ボタンと同じ幅にする*/
+    background-color: white;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1); /*影をつけて浮き上がらせる*/
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    padding: 0;
+    margin: 5px 0 0 0; /*少し隙間をあける*/
+    list-style: none; /* ・を消す*/
+    z-index: 100; /*他の要素より手前に表示*/
+}
+/*リストを表示するためのクラス*/
+.dropdown-list.show{
+    display: block;
+}
+/*リストの各項目*/
+.dropdown-list li{
+    padding: 10px;
+    cursor: pointer;
+    border-bottom: 1px solid #eee;
+}
+/*マウスを乗せた時の色*/
+.dropdown-list li:hover{
+    background-color: #f0f0f0;
+}
+/*カレンダー入力欄（ボタン部分）の見た目*/
+#date-picker {
+    padding: 10px 20px;   /*内側の余白（ボタンの大きさに影響）*/
+    font-size: 30px;      /*文字の大きさ*/
+    cursor: pointer;      /*マウスを乗せた時に指マークにする*/
+    border: 1px solid black;
+    border-radius: 4px;
+    background-color: #f0f0f0;
+    font-family: Arial, sans-serif;
+    /*隣のボタンと高さを合わせるための調整*/
+    height: auto;
+    min-width: 250px;     /*日付が隠れない程度の幅を確保*/
+}
+/*カレンダーアイコンの大きさを調整（Google Chromeなどの場合）*/
+#date-picker::-webkit-calendar-picker-indicator {
+    width: 30px;          /*アイコンの横幅*/
+    height: 30px;         /*アイコンの縦幅*/
+    cursor: pointer;
+}
+
+/*画面下*/
+.bottombox{
+    grid-row: 2;
+    background-color: #fffafa;
+    /*割合決め*/
+    display: grid;
+    grid-template-columns: 1fr 1fr;/*横*/
+    grid-template-rows: 1fr 1fr;/*縦*/
+}
+/*温度box--------------------------------------------------------------*/
+.tempbox{
+    grid-column: 1;
+    grid-row: 1;
+    background-color: red;
+    /*割合決め*/
+    display: grid;
+    grid-template-columns: 1fr 7fr;/*横*/
+}
+/*縦軸*/
+.t_tate{
+    grid-column: 1;
+    grid-row: 1;
+    background-color: red;
+}
+/*横軸*/
+.t_yoko{
+    grid-column: 2;
+    grid-row: 1;
+    background-color: black;
+    display: grid;
+    grid-template-rows: 1fr 6fr 1fr;/*縦*/
+}
+/*タイトル*/
+.t_title{
+    grid-column: 1;
+    grid-row: 1;
+    background-color: blue;
+}
+/*グラフ*/
+.t_gurafu{
+    grid-column: 1;
+    grid-row: 3;
+    background-color: blue;
+}
+/*温度box--------------------------------------------------------------*/
+.humibox{
+    grid-column: 2;
+    grid-row: 1;
+}
+/*気圧box---------------------------------------------------------------*/
+.presbox{
+    grid-column: 1;
+    grid-row: 2;
+}
+/*地震box---------------------------------------------------------------*/
+.earqbox{
+    grid-column: 2;
+    grid-row: 2;
 }
