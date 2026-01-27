@@ -42,7 +42,7 @@ WiFiClient client;
 // --- 設定値 ---
 const int light_threshold = 100;
 const char *room = "0-504";
-const int send_time = 3600;
+const int send_time = 10;
 const int vibration_threshold = 80;
 const int vibrationsensor_lowtimeout = 2000;
 const unsigned long VIBRATION_TIMEOUT = 10000;
@@ -57,7 +57,7 @@ unsigned long low_start_time = 0;
 
 char buf[64];
 float t = 0, h = 0, p = 0;
-int l = 0;
+bool l = false;
 
 // --- プロトタイプ宣言 ---
 void connectWiFi();
@@ -74,6 +74,7 @@ void writeRegister(byte registerAddress, byte value);
 long readRegister(byte registerAddress, int numBytes);
 void dispOLED_env();
 void dispOLED_vib();
+void dispOLED_Wifi();
 void dispOLED_vibsensor_warn();
 
 void setup() {
@@ -108,6 +109,8 @@ void setup() {
 void loop() {
   if (WiFi.status() != WL_CONNECTED) {
     connectWiFi();
+    dispOLED_Wifi();
+    delay(1000);
   }
 
   int pinStatus = digitalRead(VIBRATION_PIN);
@@ -174,6 +177,13 @@ void dispOLED_vibsensor_warn() {
   display.display();
 }
 
+void dispOLED_Wifi(){
+  display.clearDisplay();
+  display.setCursor(0, 0);
+  display.println("\n---------------------\n\nWiFi Disconnected!");
+  display.display();
+}
+
 void getData() {
   h = dht.readHumidity();
   t = dht.readTemperature();
@@ -181,7 +191,11 @@ void getData() {
   unsigned long lsb = readRegister(0x20, 2);
   unsigned long pressureRaw = ((msb & 0x07) << 16) | lsb;
   p = (pressureRaw / 4.0) / 100.0;
-  l = (analogRead(LIGHT_SENSOR_PIN) > light_threshold);
+  if (analogRead(LIGHT_SENSOR_PIN) > light_threshold) {
+    l = true;
+  } else {
+    l = false;
+  }
 }
 
 void printCurrentTime() {
@@ -233,6 +247,7 @@ void sendData(bool type) {
     client.print("Content-Length: "); client.println(jsonString.length());
     client.println("Connection: close\n");
     client.print(jsonString);
+    Serial.println(jsonString);
     client.stop();
   }
 }
