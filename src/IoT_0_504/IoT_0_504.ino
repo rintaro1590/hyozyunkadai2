@@ -31,7 +31,7 @@ SPISettings scp1000Settings(1000000, MSBFIRST, SPI_MODE0);
 const char *ssid = "oyama-android";
 const char *pass = "oyama.android";
 const char server_ip[] = "10.100.56.161";
-IPAddress local_IP(10, 100, 56, 170);
+IPAddress local_IP(10, 100, 56, 171);
 IPAddress gateway(10, 100, 56, 254);
 IPAddress subnet(255, 255, 255, 0);
 
@@ -42,7 +42,7 @@ WiFiClient client;
 // --- 設定値 ---
 const int light_threshold = 100;
 const char *room = "0-504";
-const int send_time = 10;
+const int send_time = 3600;
 const int vibration_threshold = 80;
 const int vibrationsensor_lowtimeout = 2000;
 const unsigned long VIBRATION_TIMEOUT = 10000;
@@ -117,6 +117,7 @@ void loop() {
   if (pinStatus == LOW) {
     if (low_start_time == 0) low_start_time = millis();
     if (millis() - low_start_time > vibrationsensor_lowtimeout) {
+      Serial.println("vibration_low");
       dispOLED_vibsensor_warn();
     }
   } else {
@@ -191,11 +192,7 @@ void getData() {
   unsigned long lsb = readRegister(0x20, 2);
   unsigned long pressureRaw = ((msb & 0x07) << 16) | lsb;
   p = (pressureRaw / 4.0) / 100.0;
-  if (analogRead(LIGHT_SENSOR_PIN) > light_threshold) {
-    l = true;
-  } else {
-    l = false;
-  }
+  l = (analogRead(LIGHT_SENSOR_PIN) > light_threshold) ? true : false;
 }
 
 void printCurrentTime() {
@@ -204,7 +201,6 @@ void printCurrentTime() {
   sprintf(buf, "%04d-%02d-%02d %02d:%02d:%02d",
           now.getYear(), (int)now.getMonth() + 1, now.getDayOfMonth(),
           now.getHour(), now.getMinutes(), now.getSeconds());
-  Serial.println(buf);
 }
 
 void connectWiFi() {
@@ -216,6 +212,11 @@ void connectWiFi() {
     delay(1000);
     timeout++;
   }
+  if (WiFi.status() == WL_CONNECTED) {
+    Serial.println("WiFi Connected");
+  } else {
+    Serial.println("WiFi Connection Failed");
+  }
 }
 
 void syncTimeNTP() {
@@ -225,30 +226,43 @@ void syncTimeNTP() {
     RTCTime currentTime(timeClient.getEpochTime());
     RTC.setTime(currentTime);
   }
+  Serial.println("NTP Time Synchronized");
 }
 
 void sendData(bool type) {
   if (WiFi.status() != WL_CONNECTED) return;
+  
   if (client.connect(server_ip, 80)) {
     StaticJsonDocument<200> doc;
     doc["type"] = "Arduino";
-    doc["datetime"] = buf;
+    doc["datetime"] = buf; // ここに入る値が最新か確認が必要
     doc["room"] = room;
     if (type) {
-      doc["temp"] = t; doc["humid"] = h; doc["press"] = p; doc["light"] = l;
+      doc["temp"] = t;
+      doc["humid"] = h; 
+      doc["press"] = p; 
+      doc["light"] = l;
     } else {
       doc["quake"] = (int)vibration_count;
     }
+
     String jsonString;
     serializeJson(doc, jsonString);
+
+    // HTTPリクエストの送信
     client.println("POST /api/api_main.php HTTP/1.1");
     client.print("Host: "); client.println(server_ip);
     client.println("Content-Type: application/json");
     client.print("Content-Length: "); client.println(jsonString.length());
-    client.println("Connection: close\n");
+    client.println("Connection: close");
+    client.println(); // 正しい空行
     client.print(jsonString);
-    Serial.println(jsonString);
+    
+    // 送信完了を待つためのディレイ（重要）
+    delay(100);     
     client.stop();
+
+    Serial.println(jsonString);
   }
 }
 
@@ -311,6 +325,7 @@ void handleVibrationEvent() {
       alarm_fired = false;
       setNextIntervalAlarm(send_time);
     }
+    Serial.print(".");
     dispOLED_vib();
     delay(1);
   }
