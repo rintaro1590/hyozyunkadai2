@@ -15,10 +15,7 @@ function getBaseId() {
     const yearShort = now.getFullYear() % 100;
     const month = now.getMonth() + 1;
 
-    // 4月以降なら(今年度-学年+1)、1-3月なら(今年度-学年)
     let baseId = (month >= 4) ? ((yearShort - (grade - 1)) * 1000) : ((yearShort - grade) * 1000);
-    
-    // 科目IDを加算 (例: 24100)
     return baseId + (Number(deptId) * 100);
 }
 
@@ -43,7 +40,8 @@ async function loadDepartments() {
             body: JSON.stringify({ type: 'In', data: 'kamei' })
         });
         const result = await response.json();
-        if (result.status) {
+        // status -> response に変更
+        if (result.response) {
             deptSelect.innerHTML = '<option value="">選択してください</option>';
             result.kamei.forEach(dept => {
                 const option = document.createElement('option');
@@ -61,9 +59,8 @@ async function loadDepartments() {
 async function updateNumbers() {
     const numberSelect = document.getElementById('number');
     const resultDiv = document.getElementById('name-result');
-    const baseId = getBaseId(); // ★共通関数を利用
+    const baseId = getBaseId();
 
-    // リセット
     numberSelect.innerHTML = '<option value="">選択してください</option>';
     resultDiv.innerText = "名前を表示";
     resultDiv.style.color = "#666";
@@ -85,7 +82,8 @@ async function updateNumbers() {
 
         const result = await response.json();
 
-        if (result.status && result.numbers) {
+        // status -> response に変更
+        if (result.response && result.numbers) {
             numberSelect.innerHTML = '<option value="">選択してください</option>';
             result.numbers.forEach(num => {
                 const option = document.createElement('option');
@@ -103,7 +101,7 @@ async function updateNumbers() {
 
 // 4. 名前表示
 async function showNameOnly() {
-    const userId = calculateUserId(); // ★共通関数を利用
+    const userId = calculateUserId();
     const resultDiv = document.getElementById('name-result');
     if (!userId) return;
 
@@ -114,7 +112,8 @@ async function showNameOnly() {
             body: JSON.stringify({ type: 'In', data: 'user_name', user_id: userId })
         });
         const result = await response.json();
-        if (result.status) {
+        // status -> response に変更
+        if (result.response) {
             resultDiv.innerText = result.username;
             resultDiv.style.color = "#000";
         } else {
@@ -126,7 +125,7 @@ async function showNameOnly() {
 
 // 5. 検索ボタンクリック (POST遷移)
 async function searchAndTransition() {
-    const userId = calculateUserId(); // ★共通関数を利用
+    const userId = calculateUserId();
     const resultDiv = document.getElementById('name-result');
     const userName = resultDiv.innerText;
 
