@@ -46,6 +46,7 @@ const int send_time = 3600;
 const int vibration_threshold = 80;
 const int vibrationsensor_lowtimeout = 2000;
 const unsigned long VIBRATION_TIMEOUT = 10000;
+unsigned long lastUpdate = 0;
 
 // --- グローバル変数 ---
 volatile bool alarm_fired = false;
@@ -74,7 +75,6 @@ void writeRegister(byte registerAddress, byte value);
 long readRegister(byte registerAddress, int numBytes);
 void dispOLED_env();
 void dispOLED_vib();
-void dispOLED_Wifi();
 void dispOLED_vibsensor_warn();
 
 void setup() {
@@ -97,10 +97,8 @@ void setup() {
 
   connectWiFi();
   syncTimeNTP();
-  getData();
   setNextIntervalAlarm(send_time);
   attachInterrupt(digitalPinToInterrupt(VIBRATION_PIN), wakeUpVibration, FALLING);
-  dispOLED_env();
 
   writeRegister(0x03, 0x0A);
   delay(100);
@@ -109,15 +107,20 @@ void setup() {
 void loop() {
   if (WiFi.status() != WL_CONNECTED) {
     connectWiFi();
-    dispOLED_Wifi();
+    syncTimeNTP();
     delay(1000);
+  }
+
+  if (millis() - lastUpdate > 2000) { // 2秒ごとにデータを更新
+    getData();
+    lastUpdate = millis();
   }
 
   int pinStatus = digitalRead(VIBRATION_PIN);
   if (pinStatus == LOW) {
     if (low_start_time == 0) low_start_time = millis();
     if (millis() - low_start_time > vibrationsensor_lowtimeout) {
-      Serial.println("vibration_low");
+      Serial.println("vibrationsensor_low");
       dispOLED_vibsensor_warn();
     }
   } else {
@@ -135,11 +138,7 @@ void loop() {
     alarm_fired = false;
     setNextIntervalAlarm(send_time);
   }
-  static unsigned long lastUpdate = 0;
-  if (millis() - lastUpdate > 2000) { // 2秒ごとにデータを更新
-    getData();
-    lastUpdate = millis();
-  }
+  
   delay(100);
 }
 
@@ -175,13 +174,6 @@ void dispOLED_vibsensor_warn() {
   display.clearDisplay();
   display.setCursor(0, 0);
   display.println("\n---------------------\n\nWarning : Vib LOW!");
-  display.display();
-}
-
-void dispOLED_Wifi(){
-  display.clearDisplay();
-  display.setCursor(0, 0);
-  display.println("\n---------------------\n\nWiFi Disconnected!");
   display.display();
 }
 
