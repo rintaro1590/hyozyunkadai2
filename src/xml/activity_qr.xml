@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="20dp">
+
+    <ImageView
+        android:id="@+id/ivQrCode"
+        android:layout_width="280dp"
+        android:layout_height="280dp"
+        android:layout_marginTop="20dp"
+        android:background="#F5F5F5"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/lbl1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="授業を選択"
+        app:layout_constraintTop_toBottomOf="@id/ivQrCode"
+        app:layout_constraintStart_toStartOf="parent"
+        android:layout_marginTop="30dp"/>
+
+    <Spinner
+        android:id="@+id/spinnerzyugyou"
+        android:layout_width="0dp"
+        android:layout_height="48dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/lbl1" />
+
+    <TextView
+        android:id="@+id/lbl2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="教室を選択"
+        app:layout_constraintTop_toBottomOf="@id/spinnerzyugyou"
+        app:layout_constraintStart_toStartOf="parent"
+        android:layout_marginTop="10dp"/>
+
+    <Spinner
+        android:id="@+id/spinnerkyositu"
+        android:layout_width="0dp"
+        android:layout_height="48dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/lbl2" />
+
+    <TextView
+        android:id="@+id/lbl3"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="出席状態"
+        app:layout_constraintTop_toBottomOf="@id/spinnerkyositu"
+        app:layout_constraintStart_toStartOf="parent"
+        android:layout_marginTop="10dp"/>
+
+    <Spinner
+        android:id="@+id/spinnersyusseki"
+        android:layout_width="0dp"
+        android:layout_height="48dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/lbl3" />
+
+    <Button
+        android:id="@+id/btnGenerate"
+        android:layout_width="match_parent"
+        android:layout_height="55dp"
+        android:text="QRコードを生成する"
+        android:textSize="18sp"
+        android:backgroundTint="#2196F3"
+        android:textColor="#FFFFFF"
+        android:layout_marginTop="20dp"
+        app:layout_constraintTop_toBottomOf="@id/spinnersyusseki"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"/>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

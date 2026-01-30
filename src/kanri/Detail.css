@@ -84,7 +84,6 @@ body{
     border: 1px solid black;
     border-radius: 4px;
     min-width: 200px; /*幅を固定してガタつきを防ぐ*/
-    /*height: 67px;*/
     text-align: left;
 }
 /*リスト部分*/
@@ -120,28 +119,28 @@ body{
 }
 /*カレンダー入力欄（ボタン部分）の見た目*/
 #date-picker {
-    padding: 10px 20px;   /*内側の余白（ボタンの大きさに影響）*/
+    padding: 10px 20px;   /*内側の余白*/
     font-size: 30px;      /*文字の大きさ*/
-    cursor: pointer;      /*マウスを乗せた時に指マークにする*/
+    cursor: pointer;
     border: 1px solid black;
     border-radius: 4px;
     background-color: #f0f0f0;
     font-family: Arial, sans-serif;
     /*隣のボタンと高さを合わせるための調整*/
     height: auto;
-    min-width: 250px;     /*日付が隠れない程度の幅を確保*/
+    min-width: 250px;
 }
-/*カレンダーアイコンの大きさを調整（Google Chromeなどの場合）*/
+/*カレンダーアイコンの大きさ*/
 #date-picker::-webkit-calendar-picker-indicator {
-    width: 30px;          /*アイコンの横幅*/
-    height: 30px;         /*アイコンの縦幅*/
+    width: 30px;          /*横幅*/
+    height: 30px;         /*縦幅*/
     cursor: pointer;
 }
 
 /*画面下*/
 .bottombox{
     grid-row: 2;
-    background-color: #fffafa;
+    /*background-color: #fffafa;*/
     /*割合決め*/
     display: grid;
     grid-template-columns: 1fr 1fr;/*横*/
@@ -151,49 +150,60 @@ body{
 .tempbox{
     grid-column: 1;
     grid-row: 1;
-    background-color: red;
+    /*background-color: red;*/
     /*割合決め*/
-    display: grid;
-    grid-template-columns: 1fr 7fr;/*横*/
+    position: relative;
+    width: 100%;
+    height: 100%;
 }
-/*縦軸*/
-.t_tate{
-    grid-column: 1;
-    grid-row: 1;
-    background-color: red;
+.gurafu{
+    position: relative;
+    width: 100%;
+    height: 100%;
 }
-/*横軸*/
-.t_yoko{
-    grid-column: 2;
-    grid-row: 1;
-    background-color: black;
-    display: grid;
-    grid-template-rows: 1fr 6fr 1fr;/*縦*/
-}
-/*タイトル*/
-.t_title{
-    grid-column: 1;
-    grid-row: 1;
-    background-color: blue;
-}
-/*グラフ*/
-.t_gurafu{
-    grid-column: 1;
-    grid-row: 3;
-    background-color: blue;
-}
-/*温度box--------------------------------------------------------------*/
+/*湿度box--------------------------------------------------------------*/
 .humibox{
     grid-column: 2;
     grid-row: 1;
+    /*割合決め*/
+    position: relative;
+    width: 100%;
+    height: 100%;
 }
 /*気圧box---------------------------------------------------------------*/
 .presbox{
     grid-column: 1;
     grid-row: 2;
+    /*割合決め*/
+    position: relative;
+    width: 100%;
+    height: 100%;
 }
 /*地震box---------------------------------------------------------------*/
 .earqbox{
     grid-column: 2;
     grid-row: 2;
+    display: grid;
+    grid-template-columns: 1fr 4fr 1fr;/*横*/
+    grid-template-rows: 1fr 1fr 3fr 1fr;/*縦*/
+}
+.e_title{
+    grid-column: 2;
+    grid-row: 2;
+    border: 1px solid #000;
+    background-color: #e6eae3;
+    font-size: 40px;
+    /*文字を中央に配置*/
+    display: grid;
+    justify-content: center;
+    align-items: center;
+}
+.earsquake{
+    grid-column: 2;
+    grid-row: 3;
+    border: 1px solid #000;
+    border-top: none;
+    background-color: #eaf4fc;
+    font-size: 30px;
+    overflow-y: auto;
 }

@@ -1,0 +1,32 @@
+graph TD
+    Start((Start)) --> Setup[setup関数: 各種初期化<br/>センサ/センサピン/OLED]
+    Setup --> func[connectWiFi関数<br>syncTimeNTP関数<br>setNextIntervalAlarm関数]
+    func --> Loop{loop関数 開始}
+    
+    Loop --> CheckWiFi{WiFi接続確認}
+    CheckWiFi -- 切断 --> Connect[connectWiFi関数<br>syncTimeNTP関数]
+    Connect --> CheckUpdate
+    CheckWiFi -- 接続中 --> CheckUpdate{2秒経過?}
+    
+    CheckUpdate -- Yes --> GetData[getData関数]
+    GetData --> CheckVibPin
+    CheckUpdate -- No --> CheckVibPin{振動センサピン LOW?}
+    
+    CheckVibPin -- Yes --> VibWarn{10秒間振動センサピンがLOW?}
+    CheckVibPin -- No --> EnvDisp[dispOLED_env関数]
+
+    VibWarn -- Yes --> Warndisp[dispOLED_vibsensor_warn関数]
+    
+    EnvDisp --> VibEvent{振動割り込み発生?}
+    Warndisp --> VibEvent
+
+    VibEvent -- Yes --> HandleVib[handleVibrationEvent関数]
+    VibEvent -- No --> TimerEvent{定期アラーム発生?}
+    
+    HandleVib --> TimerEvent
+    
+    TimerEvent -- Yes --> HandleTimer[handleTimerEvent関数]
+    TimerEvent -- No --> Wait[100ms 待機]
+    
+    HandleTimer --> Wait
+    Wait --> Loop

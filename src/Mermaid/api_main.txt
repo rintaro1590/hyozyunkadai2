@@ -1,0 +1,19 @@
+graph TD
+    Start([Start]) --> receive([リクエスト受信]) --> DB[db_config:<br>getDbConnection関数]
+    DB --> JSON{JSONデコード}
+    JSON -->|失敗/typeなし| Err[エラー応答]
+    JSON -->|成功| Type{typeキー判定}
+    
+    Type -->|'Arduino'| AR[arduino_logic:<br> handleArduinoRequest関数]
+    Type -->|'Android'| AN[android_logic:<br> handleAndroidRequest関数]
+    Type -->|'In'| IN[in_logic:<br> handleInRequest関数]
+    Type -->|その他| Unk[Unknown typeエラー]
+    
+    AR --> Res[レスポンスJSON出力]
+    AN --> Res
+    IN --> Res
+    Unk --> Res
+    Err --> Res
+    
+    Res --> Close[DB接続終了]
+    Close --> End([End])

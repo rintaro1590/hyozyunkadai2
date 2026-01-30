@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#FFFFFF">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="20dp"
+        android:gravity="center_horizontal">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="～情報を入力してください～"
+            android:layout_marginBottom="20dp" />
+
+        <Spinner
+            android:id="@+id/spinnerYear"
+            android:layout_width="200dp"
+            android:layout_height="48dp"
+            android:layout_marginBottom="16dp" />
+
+        <Spinner
+            android:id="@+id/spinnerDept"
+            android:layout_width="200dp"
+            android:layout_height="48dp"
+            android:layout_marginBottom="16dp" />
+
+        <Spinner
+            android:id="@+id/spinnerNumber"
+            android:layout_width="200dp"
+            android:layout_height="48dp"
+            android:layout_marginBottom="20dp" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="名前とパスワードを入力してください"
+            android:layout_marginBottom="10dp"/>
+
+        <EditText
+            android:id="@+id/editName"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="名前"
+            android:background="@drawable/edittext_border"
+            android:padding="10dp"
+            android:layout_marginBottom="10dp"/>
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="20dp"
+            app:passwordToggleEnabled="true"
+            app:passwordToggleTint="#666666">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/editNewPassword"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="パスワード"
+                android:inputType="textPassword"
+                android:padding="10dp"/>
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <TextView
+            android:id="@+id/textResultId"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="5dp"/>
+
+        <TextView
+            android:id="@+id/textResultPw"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="20dp"/>
+
+        <Button
+            android:id="@+id/btnRegister"
+            android:layout_width="100dp"
+            android:layout_height="wrap_content"
+            android:background="@drawable/edittext_border"
+            android:backgroundTint="#FFFFFF"
+            android:textColor="#000000"
+            android:text="登録" />
+
+    </LinearLayout>
+</ScrollView>

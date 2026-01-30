@@ -1,0 +1,15 @@
+graph TD
+    Start([Start]) --> func[handleArduinoRequest関数] --> Branch{データ内容判定}
+    
+    %% 環境データ
+    Branch -->|datetime,room,temp, humid,press,lightあり| Env[processEnvironmentData関数]
+    Env --> Env1[room_stateに照明状態をUPDATE]
+    Env1 --> Env2[env_recordに環境ログをINSERT]
+    
+    %% 振動データ
+    Branch -->|datetime,room,quakeあり| Quake[processQuakeData関数]
+    Quake --> Q_Insert[quake_recordに振動ログをINSERT]
+
+    Env2 --> End([End])
+    Q_Insert --> End
+    

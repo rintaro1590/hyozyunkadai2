@@ -1,0 +1,24 @@
+﻿graph TD
+    Start([Start:アプリ起動]) --> InitView[UI要素の初期化<br/>ID, Pass, ボタン等]
+    
+    InitView --> Wait{ユーザー操作待ち}
+
+    %% 新規登録ボタンの処理
+    Wait -- 新規作成ボタン押下 --> JumpRegister[RegisterActivityへ遷移]
+    JumpRegister --> Wait
+
+    %% 送信ボタンの処理
+    Wait -- 送信ボタン押下 --> CheckEmpty{入力チェック<br/>IDとPassは空でないか?}
+    
+    CheckEmpty -- No --> ErrorEmpty[エラー表示:<br/>IDとパスワードを入力してください]
+    ErrorEmpty --> Wait
+
+    CheckEmpty -- Yes --> ParseID{IDを数値に変換可能?}
+    
+    ParseID -- No --> ErrorFormat[エラー表示:<br/>IDは数字で入力してください]
+    ErrorFormat --> Wait
+
+    ParseID -- Yes --> CreateThread[通信スレッド MyNetThread の生成]
+    CreateThread --> SetParams[パラメータ設定:<br/>name='Android'<br/>ID, Password, URL等]
+    SetParams --> ThreadStart[スレッド開始: thread.start]
+    ThreadStart --> Wait

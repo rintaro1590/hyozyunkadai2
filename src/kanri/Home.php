@@ -54,17 +54,17 @@ if($row502){
     $hum1 = $row502['humidity'];//湿度
     
     //温度
-    if($temp1 <= 20){
+    if($temp1 <= 17){
         $temperature_502 = "syasin/ondokei1.png";
-    }elseif($temp1 <= 22){
+    }elseif($temp1 <= 23){
         $temperature_502 = "syasin/ondokei2.png";
     }else{
         $temperature_502 = "syasin/ondokei3.png";
     }
     //湿度
-    if($hum1 <= 12.9){
+    if($hum1 <= 30){
         $bg_color_502 = "#add8e6";
-    }elseif($hum1 <= 15){
+    }elseif($hum1 <= 60){
         $bg_color_502 = "#00bfff";
     }else{
         $bg_color_502 = "#1e90ff";
@@ -95,17 +95,17 @@ if($row504){
     $hum2 = $row504['humidity'];//湿度
     
     //温度
-    if($temp2 <= 23.5){
+    if($temp2 <= 17){
         $temperature_504 = "syasin/ondokei1.png";
-    }elseif($temp2 <= 24.3){
+    }elseif($temp2 <= 23){
         $temperature_504 = "syasin/ondokei2.png";
     }else{
         $temperature_504 = "syasin/ondokei3.png";
     }
     //湿度
-    if($hum2 <= 12.9){
+    if($hum2 <= 30){
         $bg_color_504 = "#add8e6";
-    } elseif($hum2 <= 15){
+    } elseif($hum2 <= 60){
         $bg_color_504 = "#00bfff";
     } else {
         $bg_color_504 = "#1e90ff";
@@ -136,17 +136,17 @@ if($row506){
     $hum3 = $row506['humidity'];//湿度
     
     //温度
-    if($temp3 <= 23.5){
+    if($temp3 <= 17){
         $temperature_506 = "syasin/ondokei1.png";
-    }elseif($temp3 <= 24.3){
+    }elseif($temp3 <= 23){
         $temperature_506 = "syasin/ondokei2.png";
     }else{
         $temperature_506 = "syasin/ondokei3.png";
     }
     //湿度
-    if($hum3 <= 5){
+    if($hum3 <= 30){
         $bg_color_506 = "#add8e6";
-    } elseif($hum3 <= 10){
+    } elseif($hum3 <= 60){
         $bg_color_506 = "#00bfff";
     } else {
         $bg_color_506 = "#1e90ff";
@@ -288,7 +288,7 @@ echo "</div>";
     //1000ミリ秒 × 60秒 × 60分 = 3,600,000ミリ秒 (1時間)
     setTimeout(function(){
         location.reload();
-    }, 10000);
+    }, 3600000);
 </script>
 </body>
 </html>

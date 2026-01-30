@@ -1,0 +1,24 @@
+graph TD
+    Start([Start]) --> func[handleInRequest関数] --> Branch{dataキー判定}
+    
+    %% 科名取得
+    Branch -->|'kamei'| Kamei[fetchKameiList関数]
+    Kamei --> K_Sel[kameiテーブルから全件取得]
+    K_Sel --> K_Ret[response: true + 取得したリストを返す]
+    
+    %% IDチェック
+    Branch -->|'user_id'| IDCheck[fetchUserIdStatus関数]
+    IDCheck --> ID_Sel[accountテーブルから範囲内ID取得]
+    ID_Sel --> ID_Calc[IDのオフセット値を計算]
+    ID_Calc --> ID_Ret[response: true + 取得したリストを返す]
+    
+    %% ユーザー名
+    Branch -->|'user_name'| Name[fetchUserName関数]
+    Name --> N_Sel[accountテーブルから名前取得]
+    N_Sel -->|存在| N_True[response: true + 名前を返す]
+    N_Sel -->|不在| N_False[response: falseを返す]
+
+    K_Ret --> End([End])
+    ID_Ret --> End
+    N_True --> End
+    N_False --> End

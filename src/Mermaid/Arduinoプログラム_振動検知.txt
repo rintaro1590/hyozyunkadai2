@@ -1,0 +1,19 @@
+graph TD
+    VibStart((Start:振動検知)) --> InitVib[is_vibrating = true<br/>カウント初期化]
+    InitVib --> TimeCheck{10秒経過した?}
+    
+    TimeCheck -- No --> PinRead{ピンの状態変化<br/>HIGH -> LOW?}
+    PinRead -- Yes --> CountInc[vibration_count ++<br/>ブザー鳴動]
+    PinRead -- No --> AlarmCheck{計測中に定期<br/>アラーム発生?}
+    
+    CountInc --> AlarmCheck
+    AlarmCheck -- Yes --> SyncSend[handleTimerEvent関数]
+    AlarmCheck -- No --> VibDisp[dispOLED_vib関数]
+    
+    VibDisp --> TimeCheck
+    
+    TimeCheck -- Yes --> Threshold{カウント > 閾値?}
+    Threshold -- Yes --> SendVib[sendData関数]
+    Threshold -- No --> EndVib[is_vibrating = false]
+    SendVib --> EndVib
+    EndVib --> Exit((End))
