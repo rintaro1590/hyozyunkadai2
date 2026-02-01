@@ -1,32 +1,32 @@
 graph TD
-    Start((Start)) --> Setup[setupŠÖ”: Šeí‰Šú‰»<br/>ƒZƒ“ƒT/ƒZƒ“ƒTƒsƒ“/OLED]
-    Setup --> func[connectWiFiŠÖ”<br>syncTimeNTPŠÖ”<br>setNextIntervalAlarmŠÖ”]
-    func --> Loop{loopŠÖ” ŠJn}
+    %%{init: {'flowchart': {'curve': 'ortho'}}}%%
+    Start((Start)) --> Setup[setupé–¢æ•°<br>å„ç¨®åˆæœŸåŒ–<br/>ã‚»ãƒ³ã‚µ/ã‚»ãƒ³ã‚µãƒ”ãƒ³/OLED<br>connectWiFié–¢æ•°<br>syncTimeNTPé–¢æ•°<br>setNextIntervalAlarmé–¢æ•°]
+    Setup --> Loop{loopé–¢æ•° é–‹å§‹}
     
-    Loop --> CheckWiFi{WiFiÚ‘±Šm”F}
-    CheckWiFi -- Ø’f --> Connect[connectWiFiŠÖ”<br>syncTimeNTPŠÖ”]
+    Loop --> CheckWiFi{WiFiæ¥ç¶šç¢ºèª}
+    CheckWiFi -- åˆ‡æ–­ --> Connect[connectWiFié–¢æ•°<br>syncTimeNTPé–¢æ•°]
     Connect --> CheckUpdate
-    CheckWiFi -- Ú‘±’† --> CheckUpdate{2•bŒo‰ß?}
+    CheckWiFi -- æ¥ç¶šä¸­ --> CheckUpdate{2ç§’çµŒé?}
     
-    CheckUpdate -- Yes --> GetData[getDataŠÖ”]
+    CheckUpdate -- Yes --> GetData[getDataé–¢æ•°]
     GetData --> CheckVibPin
-    CheckUpdate -- No --> CheckVibPin{U“®ƒZƒ“ƒTƒsƒ“ LOW?}
+    CheckUpdate -- No --> CheckVibPin{æŒ¯å‹•ã‚»ãƒ³ã‚µãƒ”ãƒ³ LOW?}
     
-    CheckVibPin -- Yes --> VibWarn{10•bŠÔU“®ƒZƒ“ƒTƒsƒ“‚ªLOW?}
-    CheckVibPin -- No --> EnvDisp[dispOLED_envŠÖ”]
+    CheckVibPin -- Yes --> VibWarn{10ç§’é–“æŒ¯å‹•ã‚»ãƒ³ã‚µãƒ”ãƒ³ãŒLOW?}
+    CheckVibPin -- No --> EnvDisp[dispOLED_envé–¢æ•°]
 
-    VibWarn -- Yes --> Warndisp[dispOLED_vibsensor_warnŠÖ”]
+    VibWarn -- Yes --> Warndisp[dispOLED_vibsensor_warné–¢æ•°]
     
-    EnvDisp --> VibEvent{U“®Š„‚è‚İ”­¶?}
+    EnvDisp --> VibEvent{æŒ¯å‹•å‰²ã‚Šè¾¼ã¿ç™ºç”Ÿ?}
     Warndisp --> VibEvent
 
-    VibEvent -- Yes --> HandleVib[handleVibrationEventŠÖ”]
-    VibEvent -- No --> TimerEvent{’èŠúƒAƒ‰[ƒ€”­¶?}
+    VibEvent -- Yes --> HandleVib[handleVibrationEventé–¢æ•°]
+    VibEvent -- No --> TimerEvent{å®šæœŸã‚¢ãƒ©ãƒ¼ãƒ ç™ºç”Ÿ?}
     
     HandleVib --> TimerEvent
     
-    TimerEvent -- Yes --> HandleTimer[handleTimerEventŠÖ”]
-    TimerEvent -- No --> Wait[100ms ‘Ò‹@]
+    TimerEvent -- Yes --> HandleTimer[handleTimerEventé–¢æ•°]
+    TimerEvent -- No --> Wait[100ms å¾…æ©Ÿ]
     
     HandleTimer --> Wait
     Wait --> Loop

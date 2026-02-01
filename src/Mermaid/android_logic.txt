@@ -1,34 +1,35 @@
 graph TD
-    Start([Start]) --> func[handleAndroidRequest] --> Branch{�f�[�^���e����}
+    Start([Start]) --> func[handleAndroidRequest関数] --> Branch{データ内容判定}
     
-    %% �T�C���A�b�v
-    Branch -->|user_id, kamei_id, name, pass����| Signup[registerUser�֐�]
-    Signup --> Exist{ID�d���`�F�b�N}
-    Exist -->|�d��| S_False[submit: false��Ԃ�]
-    Exist -->|�V�K| S_Insert[acount�Ƀ��[�U����INSERT]
-    S_Insert --> S_True[submit: true��Ԃ�]
+    %% サインアップ
+    Branch -->|user_id, kamei_id, name, passキーあり| Signup[registerUser関数]
+    Signup --> Exist{ID重複チェック}
+    Exist -->|重複| S_False[submit: falseを返す]
+    Exist -->|新規| S_Insert[acountにユーザ情報をINSERT]
+    S_Insert --> S_True[図2.2.5を返す]
     
-    %% ���O�C��
-    Branch -->|user_id, pass����| Login[authenticateUser�֐�]
-    Login --> Auth{SELECT�ƍ�}
-    Auth -->|�s��v| L_False[login: false��Ԃ�]
-    Auth -->|��v| L_Sub[�����Ȗڃ��X�g�擾]
-    L_Sub --> L_True[login: true + �Ȗڃf�[�^��Ԃ�]
+    %% ログイン
+    Branch -->|user_id, passキーあり| Login[authenticateUser関数]
+    Login --> Auth{IDとパスワード照合}
+    Auth -->|不一致| L_False[login: falseを返す]
+    Auth -->|一致| L_Sub[所属科目リスト取得]
+    L_Sub --> L_True[図2.2.6を返す]
     
-    %% �o��
-    Branch -->|status, room������| Att[processAttendance�֐�]
-    Att --> St{status >= 3?}
-    St -->|Yes: �ގ�| Out[handleCheckout�֐�:<br> stu_record�ɑޏo�L�^��UPDATE]
-    St -->|No: ����| In[handleCheckin�֐�:<br> stu_record�ɏo�ȋL�^��INSERT���s]
+    %% 出席
+    Branch -->|user_id,subject_id,datetime,status, roomキーあり| Att[processAttendance関数]
+    Att --> St{statusキー >= 3?}
+    St -->|Yes:退出| Out[handleCheckout関数:<br> stu_recordに退出記録をUPDATE]
+    St -->|No:出席| In[handleCheckin関数:<br> stu_recordに出席記録をINSERT]
     
-    Out --> Count{stu_record�ւ̉e���s�� > 0?}
+    Out --> Count{stu_recordへの影響行数 > 0?}
     In --> Count
-    Count -->|Yes| UpCount[updateRoomCount�֐�: �l�������Z]
-    Count -->|No| Ret[���ʂ�ԋp]
-    UpCount --> Ret
+    Count -->|Yes| UpCount[updateRoomCount関数: 人数加減算]
+    Count -->|No| Ret1[response:falseを返す]
+    UpCount --> Ret2[response:trueを返す]
 
     S_False --> End([End])
     S_True --> End
     L_False --> End
     L_True --> End
-    Ret --> End
+    Ret1 --> End
+    Ret2 --> End

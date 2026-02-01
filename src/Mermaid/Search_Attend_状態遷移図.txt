@@ -1,0 +1,21 @@
+stateDiagram-v2
+    [*] --> Search.phpの画面: Search.php アクセス
+    
+    state Search.phpの画面 {
+        [*] --> 未選択
+        未選択 --> 科名・学年を選択済: 科名・学年を選択<br>(updateNumbers関数)
+        科名・学年を選択済 --> 番号を選択済: 番号を選択<br>(showNameOnly関数)
+        番号を選択済 --> 検証中: 検索ボタン押下<br>(searchAndTransition関数)
+        検証中 --> 番号を選択済: 入力不備 (エラー表示)
+    }
+
+    検証中 --> Attend.phpの画面: POST送信(user_id,user_name,date)
+
+    state Attend.phpの画面 {
+        [*] --> 出席と成績表: 指定日のデータ表示
+        出席と成績表 --> 出席と成績表: 日付変更<br>(postDateUpdate関数 / 自画面遷移)
+        出席と成績表 --> 出席と成績表: 成績表スクロール閲覧
+    }
+
+    Attend.phpの画面 --> Search.phpの画面: 戻るボタン押下
+    Attend.phpの画面 --> [*]

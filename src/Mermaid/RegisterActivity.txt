@@ -1,0 +1,13 @@
+graph TD
+    Start([Start]) --> func[setupSpinner関数:<br>科名、年度、番号に選択肢をセット]
+    func --> B[入力取得: 名前, パスワード, 年度, 学科, 番号]
+    B --> C{名前・パスワード空?}
+    C -- Yes --> D[エラー表示]
+    C -- No --> E[年度を2桁に変換]
+    E --> F{学科判定}
+    F -- 生産電子 --> G[kamei_id = 7]
+    F -- 電子情報 --> H[kamei_id = 3]
+    F -- 建築 --> I[kamei_id = 4]
+    G & H & I --> J[user_id = 年度*1000 + kamei_id*100 + 番号]
+    J --> K[ResultActivityへデータを渡して遷移]
+    K --> End([End])

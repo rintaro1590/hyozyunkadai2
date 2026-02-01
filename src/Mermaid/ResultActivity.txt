@@ -1,0 +1,13 @@
+graph TD
+    Start([Start]) --> B[RegisterからのデータをJSON作成：図2.2.3]
+    B --> C[サーバーへPOST送信]
+    C --> re["レスポンス受信：図2.2.5"]
+    re --> D{submitキー == true?}
+    D -- Yes --> E[成功メッセージ表示 / ボタンを「メインへ」に変更]
+    D -- No --> F[失敗理由表示 / ボタンを「戻る」に変更]
+    E & F --> G{ボタンクリック}
+    G -- 成功時 --> H[MainActivityへ戻る]
+    G -- 失敗時 --> I[Registerへ戻る]
+
+    H --> End([End])
+    I --> End

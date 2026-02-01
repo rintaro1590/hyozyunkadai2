@@ -1,19 +1,17 @@
 graph TD
-    Start([Start]) --> receive([ÉäÉNÉGÉXÉgéÛêM]) --> DB[db_config:<br>getDbConnectionä÷êî]
-    DB --> JSON{JSONÉfÉRÅ[Éh}
-    JSON -->|é∏îs/typeÇ»Çµ| Err[ÉGÉâÅ[âûìö]
-    JSON -->|ê¨å˜| Type{typeÉLÅ[îªíË}
+    Start([Start]) --> receive([„É™„ÇØ„Ç®„Çπ„ÉàÂèó‰ø°]) --> DB[db_config:<br>getDbConnectionÈñ¢Êï∞]
+    DB --> JSON{JSON„Éá„Ç≥„Éº„Éâ}
+    JSON -->|Â§±Êïó/type„Å™„Åó| Err["{&quot;status&quot;:&quot;error&quot;,<br>&quot;message&quot;:&quot;„Ç®„É©„ÉºË°®Á§∫&quot;}"]
+    JSON -->|ÊàêÂäü| Type{type„Ç≠„ÉºÂà§ÂÆö}
     
-    Type -->|'Arduino'| AR[arduino_logic:<br> handleArduinoRequestä÷êî]
-    Type -->|'Android'| AN[android_logic:<br> handleAndroidRequestä÷êî]
-    Type -->|'In'| IN[in_logic:<br> handleInRequestä÷êî]
-    Type -->|ÇªÇÃëº| Unk[Unknown typeÉGÉâÅ[]
+    Type -->|'Arduino'| AR[arduino_logic:<br> handleArduinoRequestÈñ¢Êï∞]
+    Type -->|'Android'| AN[android_logic:<br> handleAndroidRequestÈñ¢Êï∞]
+    Type -->|'In'| IN[in_logic:<br> handleInRequestÈñ¢Êï∞]
     
-    AR --> Res[ÉåÉXÉ|ÉìÉXJSONèoóÕ]
+    AR --> Res[„É¨„Çπ„Éù„É≥„ÇπJSONÂá∫Âäõ]
     AN --> Res
     IN --> Res
-    Unk --> Res
     Err --> Res
     
-    Res --> Close[DBê⁄ë±èIóπ]
+    Res --> Close[DBÊé•Á∂öÁµÇ‰∫Ü]
     Close --> End([End])

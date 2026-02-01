@@ -1,0 +1,12 @@
+graph TD
+    Start([Start]) --> B{name == 'Android'?}
+    B -- Yes: ログイン --> C[JSON作成: 図2.2.4]
+    B -- No: 新規登録 --> D[JSON作成: 図2.2.3]
+    C & D --> E[HTTP POST送信]
+    E --> F[レスポンス受信: 図2.2.6]
+    F --> func[handleResponse関数]
+    func --> G{loginキー == true?}
+    G -- No --> H[ログイン失敗表示]
+    G -- Yes --> I{isteacher?}
+    I -- True --> J[qrActivityへ遷移]
+    I -- False --> K[ScannerActivityへ遷移]

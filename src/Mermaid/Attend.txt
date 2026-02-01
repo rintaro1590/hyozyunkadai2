@@ -1,0 +1,13 @@
+graph TD
+    Start([Start]) --> DBConnect[getDbConnection関数]
+    DBConnect --> GetParams[Search.phpから<br>POSTパラメータ受取<br>user_id, date, user_name]
+    
+    GetParams --> SQL_Execution1[user_idとdateで<br>出席表SQL実行]
+    SQL_Execution1 --> SQL_Execution2[user_idで<br>成績表SQL実行]
+    
+    SQL_Execution2 --> RenderHTML[HTML描画開始]
+    RenderHTML --> namedisp[user_nameの表示]
+    namedisp --> RenderTable[出席表の表示]
+    RenderTable --> RenderGrade[成績表の表示]
+    
+    RenderGrade --> End([End])

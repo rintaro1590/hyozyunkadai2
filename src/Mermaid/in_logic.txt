@@ -1,22 +1,22 @@
 graph TD
-    Start([Start]) --> func[handleInRequestŠÖ”] --> Branch{dataƒL[”»’è}
+    Start([Start]) --> func[handleInRequesté–¢æ•°] --> Branch{dataã‚­ãƒ¼åˆ¤å®š}
     
-    %% ‰È–¼æ“¾
-    Branch -->|'kamei'| Kamei[fetchKameiListŠÖ”]
-    Kamei --> K_Sel[kameiƒe[ƒuƒ‹‚©‚ç‘SŒæ“¾]
-    K_Sel --> K_Ret[response: true + æ“¾‚µ‚½ƒŠƒXƒg‚ğ•Ô‚·]
+    %% ç§‘åå–å¾—
+    Branch -->|'kamei'| Kamei[fetchKameiListé–¢æ•°]
+    Kamei --> K_Sel[kameiãƒ†ãƒ¼ãƒ–ãƒ«ã‹ã‚‰<br>å…¨ä»¶å–å¾—]
+    K_Sel --> K_Ret[å›³2.2.12ã‚’è¿”ã™]
     
-    %% IDƒ`ƒFƒbƒN
-    Branch -->|'user_id'| IDCheck[fetchUserIdStatusŠÖ”]
-    IDCheck --> ID_Sel[accountƒe[ƒuƒ‹‚©‚ç”ÍˆÍ“àIDæ“¾]
-    ID_Sel --> ID_Calc[ID‚ÌƒIƒtƒZƒbƒg’l‚ğŒvZ]
-    ID_Calc --> ID_Ret[response: true + æ“¾‚µ‚½ƒŠƒXƒg‚ğ•Ô‚·]
+    %% IDãƒã‚§ãƒƒã‚¯
+    Branch -->|'user_nums'| IDCheck[fetchUserIdStatusé–¢æ•°]
+    IDCheck --> ID_Calc[user_id_minã‚­ãƒ¼ã‹ã‚‰<br>IDæœ€å¤§å€¤ã‚’è¨ˆç®—]
+    ID_Calc --> ID_Sel[accountãƒ†ãƒ¼ãƒ–ãƒ«ã‹ã‚‰<br>ç¯„å›²å†…IDå–å¾—]
+    ID_Sel --> ID_Ret[å›³2.2.13ã‚’è¿”ã™]
     
-    %% ƒ†[ƒU[–¼
-    Branch -->|'user_name'| Name[fetchUserNameŠÖ”]
-    Name --> N_Sel[accountƒe[ƒuƒ‹‚©‚ç–¼‘Oæ“¾]
-    N_Sel -->|‘¶İ| N_True[response: true + –¼‘O‚ğ•Ô‚·]
-    N_Sel -->|•sİ| N_False[response: false‚ğ•Ô‚·]
+    %% ãƒ¦ãƒ¼ã‚¶ãƒ¼å
+    Branch -->|'user_name'| Name[fetchUserNameé–¢æ•°]
+    Name --> N_Sel{accountãƒ†ãƒ¼ãƒ–ãƒ«ã‹ã‚‰<br>åå‰å–å¾—}
+    N_Sel -->|å­˜åœ¨| N_True[å›³2.2.14ã‚’è¿”ã™]
+    N_Sel -->|ä¸åœ¨| N_False[response: falseã‚’è¿”ã™]
 
     K_Ret --> End([End])
     ID_Ret --> End

@@ -1,0 +1,13 @@
+graph TD
+    Start([Start]) --> B[カメラ起動/スキャン待機]
+    B --> C{QR検知}
+    C --> D["スキャン停止(isScanned=false)"]
+    D --> func[sendAttendanceData関数]
+    func --> E[QRデータからJSON作成: 図2.2.7]
+    E --> F[HTTP POST送信]
+    F --> G{送信成功?}
+    G -- Yes --> H[「送信完了」表示]
+    G -- No --> I[「登録失敗」表示]
+
+    H --> End([End])
+    I --> End

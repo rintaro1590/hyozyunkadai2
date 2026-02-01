@@ -221,13 +221,7 @@ function formatDiffTime($total_minutes)
         <input type="hidden" name="user_name" value="<?php echo htmlspecialchars($user_name); ?>">
         <input type="hidden" name="date" id="hidden-date">
     </form>
-
-    <script>
-        function postDateUpdate(selectedDate) {
-            document.getElementById('hidden-date').value = selectedDate;
-            document.getElementById('refresh-form').submit();
-        }
-    </script>
+    <script src="script.js"></script>
 </body>
 
 </html>

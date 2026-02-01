@@ -36,7 +36,7 @@ create table kamei (
 
 create table account (
 	user_id int primary key,
-	kamei_id varchar(20),
+	kamei_id int,
 	name varchar(20),
 	password varchar(20),
 	teacher boolean default false

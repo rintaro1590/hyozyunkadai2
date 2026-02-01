@@ -1,14 +1,14 @@
 graph TD
-    Start([Start]) --> func[handleArduinoRequestŠÖ”] --> Branch{ƒf[ƒ^“à—e”»’è}
+    Start([Start]) --> func[handleArduinoRequesté–¢æ•°] --> Branch{ãƒ‡ãƒ¼ã‚¿å†…å®¹åˆ¤å®š}
     
-    %% ŠÂ‹«ƒf[ƒ^
-    Branch -->|datetime,room,temp, humid,press,light‚ ‚è| Env[processEnvironmentDataŠÖ”]
-    Env --> Env1[room_state‚ÉÆ–¾ó‘Ô‚ğUPDATE]
-    Env1 --> Env2[env_record‚ÉŠÂ‹«ƒƒO‚ğINSERT]
+    %% ç’°å¢ƒãƒ‡ãƒ¼ã‚¿
+    Branch -->|datetime,room,temp, humid,press,lightã‚­ãƒ¼ã‚ã‚Š| Env[processEnvironmentDataé–¢æ•°]
+    Env --> Env1[room_stateã«ç…§æ˜çŠ¶æ…‹ã‚’UPDATE]
+    Env1 --> Env2[env_recordã«ç’°å¢ƒãƒ­ã‚°ã‚’INSERT]
     
-    %% U“®ƒf[ƒ^
-    Branch -->|datetime,room,quake‚ ‚è| Quake[processQuakeDataŠÖ”]
-    Quake --> Q_Insert[quake_record‚ÉU“®ƒƒO‚ğINSERT]
+    %% æŒ¯å‹•ãƒ‡ãƒ¼ã‚¿
+    Branch -->|datetime,room,quakeã‚­ãƒ¼ã‚ã‚Š| Quake[processQuakeDataé–¢æ•°]
+    Quake --> Q_Insert[quake_recordã«æŒ¯å‹•ãƒ­ã‚°ã‚’INSERT]
 
     Env2 --> End([End])
     Q_Insert --> End

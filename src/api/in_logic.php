@@ -30,7 +30,7 @@ function isKameiListRequest($data) {
 }
 
 function isUserIdCheckRequest($data) {
-    return isset($data['data'], $data['user_id_min']) && $data['data'] === 'user_id';
+    return isset($data['data'], $data['user_id_min']) && $data['data'] === 'user_nums';
 }
 
 function isUserNameRequest($data) {

@@ -1,19 +1,19 @@
 graph TD
-    VibStart((Start:U“®ŒŸ’m)) --> InitVib[is_vibrating = true<br/>ƒJƒEƒ“ƒg‰Šú‰»]
-    InitVib --> TimeCheck{10•bŒo‰ß‚µ‚½?}
+    VibStart((Start:æŒ¯å‹•æ¤œçŸ¥)) --> InitVib[is_vibrating = true<br/>ã‚«ã‚¦ãƒ³ãƒˆåˆæœŸåŒ–]
+    InitVib --> TimeCheck{10ç§’çµŒéã—ãŸ?}
     
-    TimeCheck -- No --> PinRead{ƒsƒ“‚Ìó‘Ô•Ï‰»<br/>HIGH -> LOW?}
-    PinRead -- Yes --> CountInc[vibration_count ++<br/>ƒuƒU[–Â“®]
-    PinRead -- No --> AlarmCheck{Œv‘ª’†‚É’èŠú<br/>ƒAƒ‰[ƒ€”­¶?}
+    TimeCheck -- No --> PinRead{ãƒ”ãƒ³ã®çŠ¶æ…‹å¤‰åŒ–<br/>HIGH -> LOW?}
+    PinRead -- Yes --> CountInc[vibration_count ++<br/>ãƒ–ã‚¶ãƒ¼é³´å‹•]
+    PinRead -- No --> AlarmCheck{è¨ˆæ¸¬ä¸­ã«å®šæœŸ<br/>ã‚¢ãƒ©ãƒ¼ãƒ ç™ºç”Ÿ?}
     
     CountInc --> AlarmCheck
-    AlarmCheck -- Yes --> SyncSend[handleTimerEventŠÖ”]
-    AlarmCheck -- No --> VibDisp[dispOLED_vibŠÖ”]
+    AlarmCheck -- Yes --> SyncSend[handleTimerEventé–¢æ•°]
+    AlarmCheck -- No --> VibDisp[dispOLED_vibé–¢æ•°]
     
     VibDisp --> TimeCheck
     
-    TimeCheck -- Yes --> Threshold{ƒJƒEƒ“ƒg > è‡’l?}
-    Threshold -- Yes --> SendVib[sendDataŠÖ”]
+    TimeCheck -- Yes --> Threshold{ã‚«ã‚¦ãƒ³ãƒˆ > é–¾å€¤?}
+    Threshold -- Yes --> SendVib[sendDataé–¢æ•°]
     Threshold -- No --> EndVib[is_vibrating = false]
     SendVib --> EndVib
     EndVib --> Exit((End))

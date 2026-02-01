@@ -1,0 +1,58 @@
+erDiagram
+    USER ||--o{ SUBJECT : "teaches"
+    KAMEI ||--o{ USER : "belongs to"
+    SUBJECT ||--o{ ATTENDANCE : "recorded in"
+    USER ||--o{ ATTENDANCE : "attends"
+    ROOM ||--o{ ATTENDANCE : "held in"
+    ROOM ||--o{ ENVIRONMENT : "monitors"
+
+    USER {
+        int id PK
+        int kamei_id FK
+        string name
+        string password
+        int teacher_flag "1:teacher / 0:student"
+    }
+
+    KAMEI {
+        int kamei_id PK
+        string kamei_mei "科名"
+    }
+
+    SUBJECT {
+        int subject_id PK
+        int teacher_id FK
+        string subject_mei "科目名"
+        int base_time
+    }
+
+    ATTENDANCE {
+        int student_id FK
+        int subject_id FK
+        string room_num FK
+        date date
+        time check_in
+        time check_out
+        int status
+    }
+
+    ENVIRONMENT {
+        datetime datetime
+        string room_num FK
+        float temperature
+        float humid
+        float pressure
+        int light_level
+        int human_cnt
+    }
+
+    ROOM {
+        string room_num PK
+        int lit
+    }
+
+    PERIOD {
+        int period PK
+        time start
+        time end
+    }

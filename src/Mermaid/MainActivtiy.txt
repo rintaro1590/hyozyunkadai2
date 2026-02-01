@@ -1,0 +1,10 @@
+graph TD
+    Start([Start]) --> B{ボタンクリック}
+    B -- 新規作成 --> C[RegisterActivityへ遷移]
+    B -- 送信 --> D[入力値取得: ID/パスワード]
+    D --> E{入力あり?}
+    E -- No --> F[エラー表示: 入力してください]
+    E -- Yes --> G{IDは数字?}
+    G -- No --> H[エラー表示: 数字で入力]
+    G -- Yes --> I[MyNetThreadを開始]
+    I --> End([End])

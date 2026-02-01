@@ -1,0 +1,11 @@
+graph TD
+    A[Start] --> func[setupSpinners関数]
+    func --> B["subjectsキー(図2.2.6)JSONをパース"]
+    B --> C[スピナーに科目名をセット]
+    C --> D{生成ボタンクリック}
+    D --> func2[generateQR関数]
+    func2 --> E[選択中の科目ID, 教室, 状態を取得]
+    E --> F[図2.2.7作成]
+    F --> G[QR画像変換]
+    G --> H[QRコード表示]
+    H --> End([End])
