@@ -6,15 +6,11 @@
 #include <Wire.h>
 #include <DHT.h>
 #include <SPI.h>
-#include <Adafruit_GFX.h>
-#include <Adafruit_SSD1306.h>
+#include <Arduino.h>
+#include <U8g2lib.h>
 
 // --- OLED設定 ---
-#define SCREEN_WIDTH 128
-#define SCREEN_HEIGHT 64
-#define OLED_RESET -1
-#define SCREEN_ADDRESS 0x3C
-Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
+U8G2_SSD1306_128X64_NONAME_F_HW_I2C u8g2(U8G2_R0, /* reset=*/ U8X8_PIN_NONE);
 
 // --- ピン定義 ---
 #define VIBRATION_PIN 3
@@ -31,7 +27,7 @@ SPISettings scp1000Settings(1000000, MSBFIRST, SPI_MODE0);
 const char *ssid = "oyama-android";
 const char *pass = "oyama.android";
 const char server_ip[] = "10.100.56.161";
-IPAddress local_IP(10, 100, 56, 171);
+IPAddress local_IP(10, 100, 56, 172);
 IPAddress gateway(10, 100, 56, 254);
 IPAddress subnet(255, 255, 255, 0);
 
@@ -41,10 +37,10 @@ WiFiClient client;
 
 // --- 設定値 ---
 const int light_threshold = 100;
-const char *room = "0-504";
+const char *room = "0-506";
 const int send_time = 3600;
-const int vibration_threshold = 80;
-const int vibrationsensor_lowtimeout = 2000;
+const int vibration_threshold = 0;
+const int vibrationsensor_lowtimeout = 10000;
 const unsigned long VIBRATION_TIMEOUT = 10000;
 unsigned long lastUpdate = 0;
 
@@ -79,12 +75,6 @@ void dispOLED_vibsensor_warn();
 
 void setup() {
   Serial.begin(115200);
-  if (!display.begin(SSD1306_SWITCHCAPVCC, SCREEN_ADDRESS)) {
-    Serial.println(F("SSD1306 allocation failed"));
-  }
-  display.clearDisplay();
-  display.setTextSize(1);
-  display.setTextColor(SSD1306_WHITE);
 
   pinMode(VIBRATION_PIN, INPUT_PULLUP);
   pinMode(BUZZER_PIN, OUTPUT);
@@ -94,6 +84,8 @@ void setup() {
   dht.begin();
   RTC.begin();
   SPI.begin();
+  u8g2.begin();
+  u8g2.setFont(u8g2_font_ncenB08_tr); // フォントを設定
 
   connectWiFi();
   syncTimeNTP();
@@ -111,8 +103,9 @@ void loop() {
     delay(1000);
   }
 
-  if (millis() - lastUpdate > 2000) { // 2秒ごとにデータを更新
+  if (millis() - lastUpdate > 1000) { // 1秒ごとにデータを更新
     getData();
+    syncTimeNTP();
     lastUpdate = millis();
   }
 
@@ -145,36 +138,68 @@ void loop() {
 void dispOLED_env() {
   RTCTime now;
   RTC.getTime(now);
-  display.clearDisplay();
-  display.setCursor(0, 0);
-  char timeStr[20];
-  sprintf(timeStr, "%04d/%02d/%02d %02d:%02d",
+  
+  u8g2.clearBuffer();          
+  u8g2.setFont(u8g2_font_6x10_tr); 
+
+  // 1行目：日時 (y=9)
+  char timestr[20];
+  sprintf(timestr, "%04d/%02d/%02d %02d:%02d",
           now.getYear(), (int)now.getMonth() + 1, now.getDayOfMonth(),
           now.getHour(), now.getMinutes());
-  display.println(timeStr);
-  display.println("---------------------");
-  display.print("room : "); display.println(room);
-  display.print("Temp : "); display.print(t, 1); display.println(" C");
-  display.print("Hum  : "); display.print(h, 1); display.println(" %");
-  display.print("Pres : "); display.print(p, 1); display.println(" hPa");
-  display.print("LightVal:"); display.println((int)analogRead(LIGHT_SENSOR_PIN));
-  display.print("Light: ");
-  display.println(l ? "bright" : "dark");
-  display.display();
+  u8g2.setCursor(0, 9);
+  u8g2.print(timestr);
+
+  // 2行目：区切り線 (y=15)
+  u8g2.setCursor(0, 15);
+  u8g2.print("---------------------");
+
+  // 3行目：部屋番号 (y=23)  <-- ここを26から23へ引き上げ
+  u8g2.setCursor(0, 23);
+  u8g2.print("Room : ");
+  u8g2.print(room);
+
+  // 4行目：室温 (y=32)
+  u8g2.setCursor(0, 32);
+  u8g2.print("Temp : ");
+  u8g2.print(t, 1);
+  u8g2.print(" C");
+
+  // 5行目：湿度 (y=41)
+  u8g2.setCursor(0, 41);
+  u8g2.print("Humid: ");
+  u8g2.print(h, 1);
+  u8g2.print(" %");
+
+  // 6行目：気圧 (y=50)
+  u8g2.setCursor(0, 50);
+  u8g2.print("Pres : ");
+  u8g2.print(p, 1);
+  u8g2.print(" hPa");
+
+  // 7行目：照度 (y=59)
+  u8g2.setCursor(0, 59);
+  u8g2.print("Light: ");
+  u8g2.print(l ? "Bright":"Dark"); 
+  /*
+  u8g2.print((float)analogRead(LIGHT_SENSOR_PIN), 1); 
+  */
+  u8g2.sendBuffer(); 
 }
 
 void dispOLED_vib() {
-  display.clearDisplay();
-  display.setCursor(0, 0);
-  display.println("\n---------------------\n\nVibration Detected!!!");
-  display.display();
+  u8g2.clearBuffer(); 
+  u8g2.setCursor(0, 9);
+  u8g2.print("Vibration Detected!!!");
+  u8g2.sendBuffer();
 }
 
 void dispOLED_vibsensor_warn() {
-  display.clearDisplay();
-  display.setCursor(0, 0);
-  display.println("\n---------------------\n\nWarning : Vib LOW!");
-  display.display();
+  u8g2.clearBuffer(); 
+  u8g2.setCursor(0, 9);
+  u8g2.print("Warning : Vib LOW!");
+  u8g2.sendBuffer();
+  
 }
 
 void getData() {
