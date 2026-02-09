@@ -206,7 +206,9 @@ async function updateCharts(roomNum, selectedDate) {
                     label: `湿度`,
                     data: humis,
                     borderColor: 'rgb(54, 162, 235)',
-                    tension: 0.1
+                    backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                    tension: 0.1,
+                    fill: true
                 }]
             },
             options: { maintainAspectRatio: false }
@@ -222,7 +224,9 @@ async function updateCharts(roomNum, selectedDate) {
                     label: `気圧`,
                     data: press,
                     borderColor: 'rgb(75, 192, 192)',
-                    tension: 0.1
+                    backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                    tension: 0.1,
+                    fill: true
                 }]
             },
             options: { maintainAspectRatio: false }

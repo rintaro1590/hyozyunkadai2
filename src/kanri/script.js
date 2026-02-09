@@ -75,7 +75,7 @@ async function updateNumbers() {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ 
                 type: 'In', 
-                data: 'user_nums', 
+                data: 'user_id', 
                 user_id_min: baseId 
             })
         });
@@ -140,10 +140,4 @@ async function searchAndTransition() {
     document.getElementById('post-user-id').value = userId;
     document.getElementById('post-user-name').value = userName;
     document.getElementById('transition-form').submit();
-}
-
-// 日付変更時のPOST送信
-function postDateUpdate(selectedDate) {
-            document.getElementById('hidden-date').value = selectedDate;
-            document.getElementById('refresh-form').submit();
 }
