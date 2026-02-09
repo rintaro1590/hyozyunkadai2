@@ -1,9 +1,11 @@
 <html>
+
 <head>
     <link rel="stylesheet" type="text/css" href="search.css">
     <meta name="viewport" content="width=device-width,initial-scale=1.0">
     <title>学生検索</title>
 </head>
+
 <body>
     <div class='sita-container'>
         <div class='tabs'>
@@ -12,7 +14,7 @@
             <div class='tab3' style="border-bottom:none;">出席</div>
             <div class='tab-right'></div>
         </div>
-        <div class="screen-container">
+        <div class="choice">
             <div class="form-box">
                 <div class="input-group">
                     <label>科名</label>
@@ -30,7 +32,7 @@
                 </div>
                 <div class="input-group">
                     <label>番号</label>
-                    <select id="number" onchange="showNameOnly()"> 
+                    <select id="number" onchange="showNameOnly()">
                         <option value="">科名と学年を選択してください</option>
                     </select>
                 </div>
@@ -50,4 +52,5 @@
     </div>
     <script src="script.js"></script>
 </body>
+
 </html>

@@ -13,10 +13,9 @@ $user_id = isset($_POST['user_id']) ? (int)$_POST['user_id'] : 0;
 $selected_date = isset($_POST['date']) ? $_POST['date'] : date('Y-m-d');
 $day_end_val = $selected_date . ' 23:59:59';
 
-// 3. SQLの実行
+// 3. SQLの実行 (出席記録)
 $sql = "
 WITH all_student_classes AS (
-    -- ① 統計：その日にどの授業が行われていたか
     SELECT DISTINCT
         pm.period_id,
         s.subject_mei,
@@ -30,15 +29,12 @@ WITH all_student_classes AS (
     WHERE CAST(r.checkin AS DATE) = $1
 ),
 user_personal_record AS (
-    -- ② 個人：指定学生の入退室記録とステータス、時間差分の計算
     SELECT
         pm.period_id,
         r.checkin,
         r.checkout,
         r.status,
-        -- 遅刻時間の計算（チェックイン - 時限開始）
         EXTRACT(EPOCH FROM (CAST(r.checkin AS TIME) - pm.start_time)) / 60 as lateness_min,
-        -- 早退時間の計算（時限終了 - チェックアウト）
         EXTRACT(EPOCH FROM (pm.end_time - CAST(r.checkout AS TIME))) / 60 as early_leave_min,
         MIN(pm.period_id) OVER(PARTITION BY r.user_id, r.checkin) as first_p,
         MAX(pm.period_id) OVER(PARTITION BY r.user_id, r.checkin) as last_p
@@ -74,27 +70,18 @@ WHERE pm.period_id BETWEEN 1 AND 4
 ORDER BY pm.period_id;
 ";
 
-// 76行目付近
 $params = [$selected_date, $day_end_val, $user_id];
 $result = pg_query_params($dbconn, $sql, $params);
 
-// エラーハンドリングを追加
 if ($result === false) {
-    echo "SQL実行エラーが発生しました。<br>";
-    echo "エラー詳細: " . pg_last_error($dbconn);
-    exit; // 処理を中断
+    exit("SQL実行エラー: " . pg_last_error($dbconn));
 }
-
 $results = pg_fetch_all($result) ?: [];
 
-// --- 成績一覧の取得 ---
+// 4. 成績一覧の取得
 $sql_grades = "
 SELECT 
     s.subject_mei,
-    s.basetime,
-    -- 合計滞在時間（分）を計算
-    SUM(EXTRACT(EPOCH FROM (r.checkout - r.checkin)) / 60) as total_stay_min,
-    -- basetime（interval）を分に変換して割る
     CASE 
         WHEN EXTRACT(EPOCH FROM s.basetime) > 0 THEN
             ROUND((SUM(EXTRACT(EPOCH FROM (r.checkout - r.checkin)) / 60) / (EXTRACT(EPOCH FROM s.basetime) / 60)) * 100)
@@ -104,32 +91,28 @@ FROM subject s
 LEFT JOIN stu_record r ON s.subject_id = r.subject_id AND r.user_id = $1
 GROUP BY s.subject_id, s.subject_mei, s.basetime
 ORDER BY s.subject_id
-LIMIT 10; -- 初期表示10件
+;
 ";
 
 $res_grades = pg_query_params($dbconn, $sql_grades, [$user_id]);
 $grades = pg_fetch_all($res_grades) ?: [];
 
-// 時間差分を「○時間○分」形式に変換する関数
 function formatDiffTime($total_minutes)
 {
     $total_minutes = max(0, (int)$total_minutes);
     if ($total_minutes === 0) return "";
     $hours = floor($total_minutes / 60);
     $minutes = $total_minutes % 60;
-
-    $res = "";
-    if ($hours > 0) $res .= $hours . "時間";
-    if ($minutes > 0) $res .= $minutes . "分";
-    return $res;
+    return ($hours > 0 ? $hours . "時間" : "") . ($minutes > 0 ? $minutes . "分" : "");
 }
 ?>
 <!DOCTYPE html>
 <html lang="ja">
 
 <head>
-    <link rel="stylesheet" type="text/css" href="attend.css">
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+    <link rel="stylesheet" type="text/css" href="attend.css">
     <title>出席詳細</title>
 </head>
 
@@ -138,80 +121,79 @@ function formatDiffTime($total_minutes)
         <div class='tabs'>
             <div class='tab'><a href='home.php'>ホーム</a></div>
             <div class='tab2'><a href='detail.php'>詳細</a></div>
-            <div class='tab3' style="border-bottom:none;">出席</div>
+            <div class='tab3'>出席</div>
             <div class='tab-right'></div>
         </div>
 
-        <div class="screen-container" style="height: auto; min-height: 600px; justify-content: flex-start;">
-            <h2 style="text-align: center; margin-bottom: 5px;"><?php echo htmlspecialchars($user_name); ?></h2>
+        <div class="choice">
+            <div class="content-wrapper">
+                <h2 style="text-align: center; margin-bottom: 20px;"><?php echo htmlspecialchars($user_name); ?></h2>
 
-            <table class="detail-table">
-                <thead>
-                    <tr>
-                        <th colspan="5" style="text-align: right; background: #fff; border-bottom: none; padding: 5px 10px;">
-                            <label for="date-picker" style="font-size: 12px; font-weight: normal;">表示日：</label>
-                            <input type="date" id="date-picker" value="<?php echo htmlspecialchars($selected_date); ?>" onchange="postDateUpdate(this.value)">
-                        </th>
-                    </tr>
-                    <tr>
-                        <th>時限</th>
-                        <th>授業名</th>
-                        <th>出席時間</th>
-                        <th>退出時間</th>
-                        <th>出席状況</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <?php foreach ($results as $row): ?>
+                <h3 class="section-title">出席表</h3>
+                <table class="detail-table">
+                    <thead>
                         <tr>
-                            <td><?php echo htmlspecialchars($row['period_id']); ?></td>
-                            <td><?php echo htmlspecialchars($row['subject_mei']); ?></td>
-                            <td><?php echo htmlspecialchars($row['start_time_disp']); ?></td>
-                            <td><?php echo htmlspecialchars($row['end_time_disp']); ?></td>
-                            <td>
-                                <?php
-                                if ($row['status'] !== null) {
-                                    if ($row['status'] == 1) {
-                                        echo "出席";
-                                    } elseif ($row['status'] == 2) {
-                                        echo formatDiffTime($row['lateness_min']) . "遅刻";
-                                    } elseif ($row['status'] == 3) {
-                                        echo formatDiffTime($row['early_leave_min']) . "早退";
-                                    }
-                                } else {
-                                    echo ($row['subject_mei'] !== '-') ? '欠席' : '-';
-                                }
-                                ?>
-                            </td>
+                            <th colspan="5" style="text-align: right; background: #fff; border-bottom: none; padding: 5px;">
+                                <label style="font-size: 14px;">表示日：</label>
+                                <input type="date" value="<?php echo htmlspecialchars($selected_date); ?>" onchange="postDateUpdate(this.value)">
+                            </th>
                         </tr>
-                    <?php endforeach; ?>
-                </tbody>
-            </table>
-
-            <div class="grade-section" style="margin-top: 40px;">
-                <h3 style="border-left: 5px solid #333; padding-left: 10px;">成績表</h3>
-                <div class="grade-container" id="grade-scroll-area">
-                    <table class="grade-table">
-                        <thead>
+                        <tr>
+                            <th>時限</th>
+                            <th>授業名</th>
+                            <th>入室時刻</th>
+                            <th>退出時刻</th>
+                            <th>状況</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php foreach ($results as $row): ?>
                             <tr>
-                                <th>授業名</th>
-                                <th>出席率(%)</th>
+                                <td><?php echo htmlspecialchars($row['period_id']); ?></td>
+                                <td><?php echo htmlspecialchars($row['subject_mei']); ?></td>
+                                <td><?php echo htmlspecialchars($row['start_time_disp']); ?></td>
+                                <td><?php echo htmlspecialchars($row['end_time_disp']); ?></td>
+                                <td>
+                                    <?php
+                                    if ($row['status'] !== null) {
+                                        if ($row['status'] == 1) echo "出席";
+                                        elseif ($row['status'] == 2) echo formatDiffTime($row['lateness_min']) . "遅刻";
+                                        elseif ($row['status'] == 3) echo formatDiffTime($row['early_leave_min']) . "早退";
+                                    } else {
+                                        echo ($row['subject_mei'] !== '-') ? '<span style="color:red;">欠席</span>' : '-';
+                                    }
+                                    ?>
+                                </td>
                             </tr>
-                        </thead>
-                        <tbody id="grade-tbody">
-                            <?php foreach ($grades as $g): ?>
-                                <tr>
-                                    <td><?php echo htmlspecialchars($g['subject_mei']); ?></td>
-                                    <td><?php echo (int)$g['attendance_rate']; ?>%</td>
-                                </tr>
-                            <?php endforeach; ?>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
+                        <?php endforeach; ?>
+                    </tbody>
+                </table>
 
-            <div class="button-area" style="margin-top: 30px;">
-                <button class="search-btn" onclick="location.href='search.php'">戻る</button>
+                <div class="grade-section">
+                    <h3 class="section-title">成績表</h3>
+                    <div class="grade-table-wrapper">
+                        <table class="grade-table">
+                            <thead>
+                                <tr>
+                                    <th>授業名</th>
+                                    <th>出席率(%)</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <?php foreach ($grades as $g): ?>
+                                    <tr>
+                                        <td><?php echo htmlspecialchars($g['subject_mei']); ?></td>
+                                        <td><?php echo (int)$g['attendance_rate']; ?>%</td>
+                                    </tr>
+                                <?php endforeach; ?>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="button-area">
+                    <button class="search-btn" onclick="location.href='search.php'">戻る</button>
+                </div>
             </div>
         </div>
     </div>
