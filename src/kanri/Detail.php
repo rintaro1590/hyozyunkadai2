@@ -9,46 +9,8 @@
 //データベース接続
 require_once './api/db_config.php';
 $dbconn = getDbConnection();
-/*
-//初期値設定
-$row502 = null;
-$row504 = null;
-$row506 = null;
-$row502_quake = null;
-$row504_quake = null;
-$row506_quake = null;
-*/
 //今日の日付取得
 $selected_date = date('Y-m-d');
-
-/*if($dbconn){
-    //0-502のデータ取得-------------------------------------------------
-    $query1 = "SELECT room_num,temperature,humidity,pressure FROM env_record WHERE room_num = '0-502' ORDER BY datetime DESC LIMIT 1";
-    $result1 = pg_query($dbconn, $query1);
-    if($result1) $row502 = pg_fetch_assoc($result1);
-    //地震のデータ取得
-    $query_quake1 = "SELECT * FROM quake_record WHERE room_num = '0-502' ORDER BY datetime DESC LIMIT 1";
-    $result_quake1 = pg_query($dbconn, $query_quake1);
-    if($result_quake1) $row502_quake = pg_fetch_assoc($result_quake1);
-
-    //0-504のデータ取得--------------------------------------------------
-    $query2 = "SELECT room_num,temperature,humidity,pressure FROM env_record WHERE room_num = '0-504' ORDER BY datetime DESC LIMIT 1";
-    $result2 = pg_query($dbconn, $query2);
-    if($result2) $row504 = pg_fetch_assoc($result2);
-    //地震のデータ取得
-    $query_quake2 = "SELECT * FROM quake_record WHERE room_num = '0-504' ORDER BY datetime DESC LIMIT 1";
-    $result_quake2 = pg_query($dbconn, $query_quake2);
-    if($result_quake2) $row504_quake = pg_fetch_assoc($result_quake2);
-
-    //0-506のデータ取得---------------------------------------------------
-    $query3 = "SELECT room_num,temperature,humidity,pressure FROM env_record WHERE room_num = '0-506' ORDER BY datetime DESC LIMIT 1";
-    $result3 = pg_query($dbconn, $query3);
-    if($result3) $row506 = pg_fetch_assoc($result3);
-    //地震のデータ取得
-    $query_quake3 = "SELECT * FROM quake_record WHERE room_num = '0-506' ORDER BY datetime DESC LIMIT 1";
-    $result_quake3 = pg_query($dbconn, $query_quake3);
-    if($result_quake3) $row506_quake = pg_fetch_assoc($result_quake3);
-}*/
 
 
 echo "<div class='sita-container'>";
@@ -114,13 +76,11 @@ echo "</div>";
 <script>
 //グラフのインスタンスを保持する変数をグローバルに宣言
 let tempChart, humiChart, presChart;
-
 //ドロップダウン関連の要素を取得
 const dropdownBtn = document.getElementById('dropdownBtn');
 const dropdownList = document.getElementById('dropdownList');
 const items = dropdownList.querySelectorAll('li');
 const datePicker = document.getElementById('date-picker');
-
 //ドロップダウンの表示・非表示切り替え
 dropdownBtn.addEventListener('click', () => {
     dropdownList.classList.toggle('show');
@@ -162,10 +122,6 @@ async function updateCharts(roomNum, selectedDate) {
             console.warn("データが見つかりませんでした。");
         }
 
-        /*const labels = jsonData.map(item => item.time);
-        const temps = jsonData.map(item => item.temp);
-        const humis = jsonData.map(item => item.humi);
-        const press = jsonData.map(item => item.pres);*/
         const envData = jsonData.env;
         const labels = envData.map(item => item.time);
         const temps = envData.map(item => item.temp);
@@ -180,7 +136,7 @@ async function updateCharts(roomNum, selectedDate) {
             data: {
                 labels: labels,
                 datasets: [{
-                    label: `温度`,// (${roomNum}  ${selectedDate})
+                    label: `温度`,
                     data: temps,
                     borderColor: 'rgb(255, 99, 132)',
                     backgroundColor: 'rgba(255, 99, 132, 0.2)',
@@ -232,16 +188,16 @@ async function updateCharts(roomNum, selectedDate) {
             options: { maintainAspectRatio: false }
         });
 
-        // --- 地震情報の表示更新 (新規追加) ---
+        //地震情報の表示更新
         const quakeContainer = document.getElementById('quake-list');
-        quakeContainer.innerHTML = ""; // 一旦クリア
+        quakeContainer.innerHTML = ""; //クリア
 
         if (jsonData.quakes && jsonData.quakes.length > 0) {
             jsonData.quakes.forEach(q => {
                 const row = document.createElement('div');
                 row.style.padding = "5px 10px";
                 row.style.borderBottom = "1px solid #ccc";
-                // 指定のフォーマット: 日付 地震発生 強さ
+                //指定のフォーマット
                 row.textContent = `${q.datetime}　回数:${q.level}`;
                 quakeContainer.appendChild(row);
             });
@@ -264,5 +220,4 @@ window.onload = () => {
         location.reload();
     }, 3600000);
 </script>
-
 </html>

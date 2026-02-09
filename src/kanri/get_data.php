@@ -2,12 +2,11 @@
 require_once './api/db_config.php';
 $dbconn = getDbConnection();
 
-//部屋番号を取得(送られてこなければデフォルト 0-502)
+//部屋番号を取得
 $room_num = isset($_GET['room']) ? $_GET['room'] : '0-502';
 //指定がなければ今日(2026-01-30)
 $date = isset($_GET['date']) ? $_GET['date'] : date('Y-m-d');
-//$data = [];
-// 返却用のデータ構造を定義
+//返却用のデータ構造を定義
 $response = [
     "env" => [],
     "quakes" => []
@@ -24,12 +23,6 @@ if($dbconn){
 
     if($result_env){
         while ($row = pg_fetch_assoc($result_env)) {
-            /*$data[] = [
-                "time" => $row['time'],
-                "temp" => (float)$row['temperature'],
-                "humi" => (float)$row['humidity'],
-                "pres" => (float)$row['pressure']
-            ];*/
             $response["env"][] = [
                 "time" => $row['time'],
                 "temp" => (float)$row['temperature'],
@@ -58,6 +51,5 @@ if($dbconn){
 
 //JSONとして出力
 header('Content-Type: application/json');
-//echo json_encode($data);
 echo json_encode($response);
 exit;

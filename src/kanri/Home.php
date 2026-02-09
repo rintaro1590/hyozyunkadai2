@@ -5,19 +5,19 @@
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
     <title>標準課題2</title>
 <style>
-    /* 地震発生時のみ表示するためのスタイル */
+    /*地震のスタイル*/
     #earthquake-overlay {
-        display: none; /* 通常は隠す */
+        display: none; /*通常は隠す*/
         position: fixed;
         top: 0;
         left: 0;
         width: 100vw;
         height: 100vh;
         background: black;
-        z-index: 9999; /* 最前面に */
+        z-index: 9999; /*最前面*/
     }
     #earthquake-overlay.active {
-        display: flex; /* 地震発生時にJSでこのクラスを付与 */
+        display: flex; /*地震発生時に付与*/
     }
 </style>
 </head>
@@ -302,6 +302,8 @@ echo "<div class='sita-container'>";
     echo "</div>";
 echo "</div>";
 ?>
+
+<!--地震速報のhtml-->
 <div id="earthquake-overlay">
     <div class="box">
         <div class="topbox">
@@ -341,26 +343,24 @@ echo "</div>";
         </div>
     </div>
 </div>
+
+
 <script>
-    // リアルタイム監視の開始
+    //リアルタイム監視
     const evtSource = new EventSource("monitor.php");
     const overlay = document.getElementById('earthquake-overlay');
 
     evtSource.onmessage = function(event) {
         const data = JSON.parse(event.data);
-        
-        // ここで「地震の値」かどうかを判定
-        // 例: $data['intensity'] がある、または特定のテーブルへの挿入など
-        // 今回は通知が来たら即座に表示する例です
+        //ここで「地震の値」かどうかを判定
         if (data) { 
             showEarthquakeAlert();
         }
     };
-
     function showEarthquakeAlert() {
-        overlay.classList.add('active'); // 表示
+        overlay.classList.add('active');//表示
         
-        // 5秒後に非表示にする
+        //5秒間表示
         setTimeout(() => {
             overlay.classList.remove('active');
         }, 5000);
