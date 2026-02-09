@@ -34,7 +34,7 @@ function calculateUserId() {
 async function loadDepartments() {
     const deptSelect = document.getElementById('department');
     try {
-        const response = await fetch('../api/api_main.php', {
+        const response = await fetch('./api/api_main.php', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ type: 'In', data: 'kamei' })
@@ -70,7 +70,7 @@ async function updateNumbers() {
     numberSelect.innerHTML = '<option value="">読み込み中...</option>';
 
     try {
-        const response = await fetch('../api/api_main.php', {
+        const response = await fetch('./api/api_main.php', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ 
@@ -106,7 +106,7 @@ async function showNameOnly() {
     if (!userId) return;
 
     try {
-        const response = await fetch('../api/api_main.php', {
+        const response = await fetch('./api/api_main.php', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ type: 'In', data: 'user_name', user_id: userId })

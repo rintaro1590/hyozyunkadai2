@@ -1,13 +1,31 @@
 <html>
 <head>
-    <link rel="stylesheet" type="text/css" href="Home.css">
+    <link rel="stylesheet" type="text/css" href="home.css">
+    <link rel="stylesheet" type="text/css" href="earthquake.css">
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
     <title>標準課題2</title>
+<style>
+    /* 地震発生時のみ表示するためのスタイル */
+    #earthquake-overlay {
+        display: none; /* 通常は隠す */
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        background: black;
+        z-index: 9999; /* 最前面に */
+    }
+    #earthquake-overlay.active {
+        display: flex; /* 地震発生時にJSでこのクラスを付与 */
+    }
+</style>
 </head>
+
 <body>
 <?php
 //データベース接続
-require_once '../api/db_config.php';
+require_once './api/db_config.php';
 $dbconn = getDbConnection();
 
 //初期値設定
@@ -173,8 +191,8 @@ if($row506_syou){
 echo "<div class='sita-container'>";
     echo "<div class='tabs'>";
         echo "<div class='tab'>ホーム</div>";
-        echo "<div class='tab2'><a href='Detail.php'>詳細</a></div>";
-        echo "<div class='tab3'><a href='Search.php'>出席</a></div>";
+        echo "<div class='tab2'><a href='detail.php'>詳細</a></div>";
+        echo "<div class='tab3'><a href='search.php'>出席</a></div>";
         echo "<div class='tab-right'></div>";
     echo "</div>";
     echo "<div class='home'>";
@@ -284,7 +302,70 @@ echo "<div class='sita-container'>";
     echo "</div>";
 echo "</div>";
 ?>
+<div id="earthquake-overlay">
+    <div class="box">
+        <div class="topbox">
+            <svg viewBox="0 0 100 30" preserveAspectRatio="none">
+                <polygon points="5,0 10,0 0,30 -5,30"/>
+                <polygon points="15,0 20,0 10,30 5,30"/>
+                <polygon points="25,0 30,0 20,30 15,30"/>
+                <polygon points="35,0 40,0 30,30 25,30"/>
+                <polygon points="45,0 50,0 40,30 35,30"/>
+                <polygon points="50,15 55,30 45,30"/>
+                <polygon points="50,0 55,0 65,30 60,30"/>
+                <polygon points="60,0 65,0 75,30 70,30"/>
+                <polygon points="70,0 75,0 85,30 80,30"/>
+                <polygon points="80,0 85,0 95,30 90,30"/>
+                <polygon points="90,0 95,0 105,30 100,30"/>
+            </svg>
+        </div>
+        <div class="animebox">
+            <div class="topbar"></div>
+            <div class="anime">緊急地震速報</div>
+            <div class="bottombar"></div>
+        </div>
+        <div class="bottombox">
+            <svg viewBox="0 0 100 30" preserveAspectRatio="none">
+                <polygon points="-5,0 0,0 10,30 5,30"/>
+                <polygon points="5,0 10,0 20,30 15,30"/>
+                <polygon points="15,0 20,0 30,30 25,30"/>
+                <polygon points="25,0 30,0 40,30 35,30"/>
+                <polygon points="35,0 40,0 50,30 45,30"/>
+                <polygon points="45,0 55,0 50,15"/>
+                <polygon points="60,0 65,0 55,30 50,30"/>
+                <polygon points="70,0 75,0 65,30 60,30"/>
+                <polygon points="80,0 85,0 75,30 70,30"/>
+                <polygon points="90,0 95,0 85,30 80,30"/>
+                <polygon points="100,0 105,0 95,30 90,30"/>
+            </svg>
+        </div>
+    </div>
+</div>
 <script>
+    // リアルタイム監視の開始
+    const evtSource = new EventSource("monitor.php");
+    const overlay = document.getElementById('earthquake-overlay');
+
+    evtSource.onmessage = function(event) {
+        const data = JSON.parse(event.data);
+        
+        // ここで「地震の値」かどうかを判定
+        // 例: $data['intensity'] がある、または特定のテーブルへの挿入など
+        // 今回は通知が来たら即座に表示する例です
+        if (data) { 
+            showEarthquakeAlert();
+        }
+    };
+
+    function showEarthquakeAlert() {
+        overlay.classList.add('active'); // 表示
+        
+        // 5秒後に非表示にする
+        setTimeout(() => {
+            overlay.classList.remove('active');
+        }, 5000);
+    }
+
     //1000ミリ秒 × 60秒 × 60分 = 3,600,000ミリ秒 (1時間)
     setTimeout(function(){
         location.reload();

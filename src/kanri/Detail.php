@@ -1,13 +1,13 @@
 <html>
 <head>
-    <link rel="stylesheet" type="text/css" href="Detail.css">
+    <link rel="stylesheet" type="text/css" href="detail.css">
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
     <title>標準課題2</title>
 </head>
 <body>
 <?php
 //データベース接続
-require_once '../api/db_config.php';
+require_once './api/db_config.php';
 $dbconn = getDbConnection();
 /*
 //初期値設定
@@ -53,9 +53,9 @@ $selected_date = date('Y-m-d');
 
 echo "<div class='sita-container'>";
     echo "<div class='tabs'>";
-        echo "<div class='tab'><a href='Home.php'>ホーム</a></div>";
+        echo "<div class='tab'><a href='home.php'>ホーム</a></div>";
         echo "<div class='tab2'>詳細</div>";
-        echo "<div class='tab3'><a href='Search.php'>出席</a></div>";
+        echo "<div class='tab3'><a href='search.php'>出席</a></div>";
         echo "<div class='tab-right'></div>";
     echo "</div>";
     echo "<div class='detail'>";

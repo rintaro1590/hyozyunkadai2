@@ -1,0 +1,94 @@
+﻿drop table if exists env_record;
+drop table if exists quake_record;
+drop table if exists room_state;
+drop table if exists kamei;
+drop table if exists account;
+drop table if exists subject;
+drop table if exists stu_record;
+drop table if exists period_master;
+
+create table env_record (
+	datetime timestamp,
+	room_num varchar(10),
+	temperature numeric,
+	humidity numeric,
+	pressure numeric,
+	primary key (datetime,room_num)
+);
+
+create table quake_record (
+	datetime timestamp,
+	room_num varchar(10),
+	level int,
+	primary key (datetime,room_num)
+);
+
+create table room_state (
+	room_num varchar(10) primary key,
+	lit boolean default false,
+	human_cnt int default 0
+);
+
+create table kamei (
+	kamei_id int primary key,
+	kamei_mei varchar(20)
+);
+
+create table account (
+	user_id int primary key,
+	kamei_id varchar(20),
+	name varchar(20),
+	password varchar(20),
+	teacher boolean default false
+);
+
+create table subject (
+	subject_id int primary key,
+	user_id int,
+	subject_mei varchar(30),
+	basetime interval
+);
+
+create table stu_record (
+	user_id int,
+	subject_id int,
+	room_num varchar(10),
+	checkin timestamp,
+	checkout timestamp,
+	status int
+);
+
+CREATE TABLE period_master (
+    period_id int PRIMARY KEY, 
+    start_time time,    
+    end_time time      
+);
+
+INSERT INTO period_master (period_id, start_time, end_time) VALUES
+(1, '08:50:00', '10:30:00'),
+(2, '10:35:00', '12:15:00'),
+(3, '13:00:00', '14:30:00'),
+(4, '14:35:00', '16:25:00');
+
+insert into room_state (room_num) values('0-502');
+insert into room_state (room_num) values('0-504');
+insert into room_state (room_num) values('0-506');
+
+insert into kamei (kamei_id,kamei_mei) values(1,'生産技術科');
+insert into kamei (kamei_id,kamei_mei) values(2,'電気エネルギー制御科');
+insert into kamei (kamei_id,kamei_mei) values(3,'電子情報技術科');
+insert into kamei (kamei_id,kamei_mei) values(4,'建築科');
+insert into kamei (kamei_id,kamei_mei) values(5,'生産機械システム技術科');
+insert into kamei (kamei_id,kamei_mei) values(6,'生産電気システム技術科');
+insert into kamei (kamei_id,kamei_mei) values(7,'生産電子情報システム技術科');
+insert into kamei (kamei_id,kamei_mei) values(8,'建築施工システム技術科');
+
+insert into account (user_id, kamei_id,name,password) values (25702,7,'石川','student02');
+insert into account (user_id, kamei_id,name,password) values (25713,7,'佐藤凜汰朗','student13');
+
+insert into subject (subject_id, user_id,subject_mei,basetime) values (7401,701,'工業技術英語','1800 minutes');
+insert into subject (subject_id, user_id,subject_mei,basetime) values (7403,702,'ディジタル回路応用設計実習','1800 minutes');
+insert into subject (subject_id, user_id,subject_mei,basetime) values (7404,703,'組込みデバイス設計実習','1800 minutes');
+insert into subject (subject_id, user_id,subject_mei,basetime) values (7404,703,'組込みデバイス設計実習','1800 minutes');
+insert into subject (subject_id, user_id,subject_mei,basetime) values (7404,703,'組込みデバイス設計実習','1800 minutes');
+insert into subject (subject_id, user_id,subject_mei,basetime) values (7401,701,'組込みシステム構築課題実習','9000 minutes');

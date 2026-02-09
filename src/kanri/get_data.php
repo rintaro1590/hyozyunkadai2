@@ -1,5 +1,5 @@
 <?php
-require_once '../api/db_config.php';
+require_once './api/db_config.php';
 $dbconn = getDbConnection();
 
 //部屋番号を取得(送られてこなければデフォルト 0-502)
@@ -42,7 +42,7 @@ if($dbconn){
     $query_quake = "SELECT to_char(datetime, 'YYYY-MM-DD HH24:MI') as datetime, level 
                     FROM quake_record 
                     WHERE room_num = $1 AND datetime::date = $2 
-                    ORDER BY datetime ASC
+                    ORDER BY datetime DESC
                     LIMIT 3";
     $result_quake = pg_query_params($dbconn, $query_quake, array($room_num, $date));
 

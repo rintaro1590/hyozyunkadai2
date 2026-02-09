@@ -1,14 +1,14 @@
 <html>
 <head>
-    <link rel="stylesheet" type="text/css" href="Search.css">
+    <link rel="stylesheet" type="text/css" href="search.css">
     <meta name="viewport" content="width=device-width,initial-scale=1.0">
     <title>学生検索</title>
 </head>
 <body>
     <div class='sita-container'>
         <div class='tabs'>
-            <div class='tab'><a href='Home.php'>ホーム</a></div>
-            <div class='tab2'><a href='Detail.php'>詳細</a></div>
+            <div class='tab'><a href='home.php'>ホーム</a></div>
+            <div class='tab2'><a href='detail.php'>詳細</a></div>
             <div class='tab3' style="border-bottom:none;">出席</div>
             <div class='tab-right'></div>
         </div>
@@ -41,7 +41,7 @@
                     <button type="button" class="search-btn" onclick="searchAndTransition()">検索</button>
                 </div>
 
-                <form id="transition-form" action="Attend.php" method="POST" style="display:none;">
+                <form id="transition-form" action="attend.php" method="POST" style="display:none;">
                     <input type="hidden" name="user_id" id="post-user-id">
                     <input type="hidden" name="user_name" id="post-user-name">
                 </form>

@@ -1,6 +1,6 @@
 <?php
 // 1. DB接続設定
-require_once '../api/db_config.php';
+require_once './api/db_config.php';
 $dbconn = getDbConnection();
 
 if (!$dbconn) {
@@ -128,7 +128,7 @@ function formatDiffTime($total_minutes)
 <html lang="ja">
 
 <head>
-    <link rel="stylesheet" type="text/css" href="Attend.css">
+    <link rel="stylesheet" type="text/css" href="attend.css">
     <meta charset="UTF-8">
     <title>出席詳細</title>
 </head>
@@ -136,8 +136,8 @@ function formatDiffTime($total_minutes)
 <body>
     <div class='sita-container'>
         <div class='tabs'>
-            <div class='tab'><a href='Home.php'>ホーム</a></div>
-            <div class='tab2'><a href='Detail.php'>詳細</a></div>
+            <div class='tab'><a href='home.php'>ホーム</a></div>
+            <div class='tab2'><a href='detail.php'>詳細</a></div>
             <div class='tab3' style="border-bottom:none;">出席</div>
             <div class='tab-right'></div>
         </div>
@@ -189,13 +189,13 @@ function formatDiffTime($total_minutes)
             </table>
 
             <div class="grade-section" style="margin-top: 40px;">
-                <h3 style="border-left: 5px solid #333; padding-left: 10px;">成績表（出席率）</h3>
+                <h3 style="border-left: 5px solid #333; padding-left: 10px;">成績表</h3>
                 <div class="grade-container" id="grade-scroll-area">
                     <table class="grade-table">
                         <thead>
                             <tr>
                                 <th>授業名</th>
-                                <th>出席率 (%)</th>
+                                <th>出席率(%)</th>
                             </tr>
                         </thead>
                         <tbody id="grade-tbody">
@@ -211,12 +211,12 @@ function formatDiffTime($total_minutes)
             </div>
 
             <div class="button-area" style="margin-top: 30px;">
-                <button class="search-btn" onclick="location.href='Search.php'">戻る</button>
+                <button class="search-btn" onclick="location.href='search.php'">戻る</button>
             </div>
         </div>
     </div>
 
-    <form id="refresh-form" method="POST" action="Attend.php" style="display:none;">
+    <form id="refresh-form" method="POST" action="attend.php" style="display:none;">
         <input type="hidden" name="user_id" value="<?php echo htmlspecialchars($user_id); ?>">
         <input type="hidden" name="user_name" value="<?php echo htmlspecialchars($user_name); ?>">
         <input type="hidden" name="date" id="hidden-date">

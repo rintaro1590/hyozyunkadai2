@@ -1,0 +1,117 @@
+body{
+    margin: 0;
+    /*height: 100vh;*/
+    /*display: flex;*/
+    justify-content: center;
+    align-items: center;
+}
+
+/*外枠の設定*/
+.box{
+    width: 100%;
+    height: 95%;
+    overflow: hidden;
+    align-items: center;/*縦方向の真ん中に配置*/
+}
+/*画面上----------------------------------------------------------------*/
+.topbox{
+    width: 100%;
+    height: 30%;
+    background: black;
+}
+svg{
+    width: 100%;
+    height: 100%;
+}
+polygon{
+  fill: #ffcc00;/*背景色*/
+  animation: animation 1s linear infinite;
+}
+/*アニメーションbox------------------------------------------------------*/
+.animebox{
+    width: 100%;
+    height: 40%;
+    background: black;
+    display: flex;
+    flex-direction: column;   /* 子要素を縦に並べる */
+    justify-content: center;  /* 垂直方向の中央に配置 */
+}
+.topbar{
+    width: 100%;
+    height: 5%;
+    background: red;
+    animation: animation2 1s linear infinite;
+}
+.anime{
+    width: 100%;
+    height: 70%;
+    color: #ffcc00;
+    font-size: 120px;
+    font-weight: bold; /*太字*/
+    /*中央配置*/
+    display: flex;
+    justify-content: right; /*水平方向中央*/
+    align-items: center;     /*垂直方向中央*/
+    animation: scroll-left 2s linear infinite,
+    blink-text 0.5s linear infinite;
+}
+/* 文字の点滅（表示・非表示を切り替え） */
+@keyframes blink-text {
+    0%{
+        color: yellow;
+    }
+    50% {
+        color: black;
+    }
+    100%{
+        color: yellow;
+    }
+}
+/* 動きの定義 */
+@keyframes scroll-left{
+  0% {
+    transform: translateX(100);
+  }
+  100% {
+    transform: translateX(-100%);
+  }
+}
+.bottombar{
+    width: 100%;
+    height: 5%;
+    background: red;
+    animation: animation2 1s linear infinite;
+}
+/*アニメーションの定義*/
+@keyframes animation{
+    0%{
+        background-color: yellow;
+        fill: yellow;
+    }
+    50%{
+        background-color: black;
+        fill: black;
+    }
+    100%{
+        background-color: yellow;
+        fill: yellow;
+    }
+}
+/*アニメーションの定義*/
+@keyframes animation2{
+    0%{
+        background-color: black;
+    }
+    50%{
+        background-color: red;
+    }
+    100%{
+        background-color: black;
+    }
+}
+/*画面下-----------------------------------------------------------------*/
+.bottombox{
+    width: 100%;
+    height: 30%;
+    background: black;
+}
