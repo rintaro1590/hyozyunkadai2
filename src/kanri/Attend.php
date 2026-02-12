@@ -27,6 +27,11 @@ WITH all_student_classes AS (
         (r.checkout IS NULL AND CAST(r.checkin AS TIME) < pm.end_time AND CAST(r.checkin AS TIME) >= pm.start_time - INTERVAL '90 minutes' AND CAST(r.checkin AS TIME) < pm.end_time)
     JOIN subject s ON r.subject_id = s.subject_id
     WHERE CAST(r.checkin AS DATE) = $1
+      /* 出席表：user_idの上3桁(257)を使いつつ、subject_id(710)にマッチさせる計算 */
+      /* MOD($3, 1000) で 25713 -> 713 にし、その3文字目の 7 を使って 700番台を特定します */
+      /* これにより 25713 と 24713 は「学年の数値を含んだ状態」で評価されます */
+      AND s.subject_id >= (CAST(SUBSTR(CAST(MOD($3, 1000) AS TEXT), 1, 1) AS INTEGER) * 100)
+      AND s.subject_id < ((CAST(SUBSTR(CAST(MOD($3, 1000) AS TEXT), 1, 1) AS INTEGER) + 1) * 100)
 ),
 user_personal_record AS (
     SELECT
@@ -43,7 +48,7 @@ user_personal_record AS (
         CAST(r.checkin AS TIME) < pm.end_time 
         AND CAST(COALESCE(r.checkout, $2) AS TIME) > pm.start_time
     WHERE CAST(r.checkin AS DATE) = $1
-      AND r.user_id = $3
+      AND r.user_id = CAST($3 AS INTEGER)
 )
 SELECT
     pm.period_id,
@@ -88,13 +93,19 @@ SELECT
         ELSE 0 
     END as attendance_rate
 FROM subject s
-LEFT JOIN stu_record r ON s.subject_id = r.subject_id AND r.user_id = $1
+LEFT JOIN stu_record r ON s.subject_id = r.subject_id AND r.user_id = CAST($1 AS INTEGER)
+/* 成績表：学年を無視して3文字目のみで判断 */
+WHERE s.subject_id >= (CAST(SUBSTR(CAST($1 AS TEXT), 3, 1) AS INTEGER) * 100)
+  AND s.subject_id < ((CAST(SUBSTR(CAST($1 AS TEXT), 3, 1) AS INTEGER) + 1) * 100)
 GROUP BY s.subject_id, s.subject_mei, s.basetime
-ORDER BY s.subject_id
-;
+ORDER BY s.subject_id;
 ";
 
 $res_grades = pg_query_params($dbconn, $sql_grades, [$user_id]);
+
+if ($res_grades === false) {
+    exit("成績SQL実行エラー: " . pg_last_error($dbconn));
+}
 $grades = pg_fetch_all($res_grades) ?: [];
 
 function formatDiffTime($total_minutes)
@@ -108,14 +119,12 @@ function formatDiffTime($total_minutes)
 ?>
 <!DOCTYPE html>
 <html lang="ja">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width,initial-scale=1.0">
     <link rel="stylesheet" type="text/css" href="attend.css">
     <title>出席詳細</title>
 </head>
-
 <body>
     <div class='sita-container'>
         <div class='tabs'>
@@ -211,5 +220,4 @@ function formatDiffTime($total_minutes)
         }
     </script>
 </body>
-
 </html>
