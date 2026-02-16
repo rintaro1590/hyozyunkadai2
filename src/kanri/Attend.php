@@ -27,18 +27,23 @@ WITH all_student_classes AS (
         (r.checkout IS NULL AND CAST(r.checkin AS TIME) < pm.end_time AND CAST(r.checkin AS TIME) >= pm.start_time - INTERVAL '90 minutes' AND CAST(r.checkin AS TIME) < pm.end_time)
     JOIN subject s ON r.subject_id = s.subject_id
     WHERE CAST(r.checkin AS DATE) = $1
-      /* 出席表：user_idの上3桁(257)を使いつつ、subject_id(710)にマッチさせる計算 */
-      /* MOD($3, 1000) で 25713 -> 713 にし、その3文字目の 7 を使って 700番台を特定します */
-      /* これにより 25713 と 24713 は「学年の数値を含んだ状態」で評価されます */
-      AND s.subject_id >= (CAST(SUBSTR(CAST(MOD($3, 1000) AS TEXT), 1, 1) AS INTEGER) * 100)
-      AND s.subject_id < ((CAST(SUBSTR(CAST(MOD($3, 1000) AS TEXT), 1, 1) AS INTEGER) + 1) * 100)
+      AND LEFT(CAST(r.user_id AS TEXT), 2) = LEFT(CAST($3 AS TEXT), 2)
+      AND s.subject_id >= (CAST(SUBSTR(CAST($3 AS TEXT), 3, 1) AS INTEGER) * 100)
+      AND s.subject_id < ((CAST(SUBSTR(CAST($3 AS TEXT), 3, 1) AS INTEGER) + 1) * 100)
 ),
 user_personal_record AS (
     SELECT
         pm.period_id,
         r.checkin,
         r.checkout,
-        r.status,
+        r.status as original_status,
+        /* 修正：早退(3)の場合は最後の時限、それ以外(遅刻等)は最初の時限にステータスを割り当てる */
+        CASE 
+            WHEN r.status = 3 AND pm.period_id = MAX(pm.period_id) OVER(PARTITION BY r.user_id, r.checkin) THEN 3
+            WHEN r.status != 3 AND pm.period_id = MIN(pm.period_id) OVER(PARTITION BY r.user_id, r.checkin) THEN r.status
+            ELSE 1 
+        END as status,
+        CASE WHEN r.checkout IS NULL THEN 1 ELSE 0 END as is_current_stay,
         EXTRACT(EPOCH FROM (CAST(r.checkin AS TIME) - pm.start_time)) / 60 as lateness_min,
         EXTRACT(EPOCH FROM (pm.end_time - CAST(r.checkout AS TIME))) / 60 as early_leave_min,
         MIN(pm.period_id) OVER(PARTITION BY r.user_id, r.checkin) as first_p,
@@ -66,8 +71,11 @@ SELECT
         ELSE '-'
     END as end_time_disp,
     upr.status,
+    upr.is_current_stay,
     upr.lateness_min,
-    upr.early_leave_min
+    upr.early_leave_min,
+    upr.first_p,
+    upr.last_p
 FROM period_master pm
 LEFT JOIN all_student_classes asc_table ON pm.period_id = asc_table.period_id
 LEFT JOIN user_personal_record upr ON pm.period_id = upr.period_id
@@ -94,7 +102,6 @@ SELECT
     END as attendance_rate
 FROM subject s
 LEFT JOIN stu_record r ON s.subject_id = r.subject_id AND r.user_id = CAST($1 AS INTEGER)
-/* 成績表：学年を無視して3文字目のみで判断 */
 WHERE s.subject_id >= (CAST(SUBSTR(CAST($1 AS TEXT), 3, 1) AS INTEGER) * 100)
   AND s.subject_id < ((CAST(SUBSTR(CAST($1 AS TEXT), 3, 1) AS INTEGER) + 1) * 100)
 GROUP BY s.subject_id, s.subject_mei, s.basetime
@@ -102,10 +109,6 @@ ORDER BY s.subject_id;
 ";
 
 $res_grades = pg_query_params($dbconn, $sql_grades, [$user_id]);
-
-if ($res_grades === false) {
-    exit("成績SQL実行エラー: " . pg_last_error($dbconn));
-}
 $grades = pg_fetch_all($res_grades) ?: [];
 
 function formatDiffTime($total_minutes)
@@ -165,9 +168,22 @@ function formatDiffTime($total_minutes)
                                 <td>
                                     <?php
                                     if ($row['status'] !== null) {
-                                        if ($row['status'] == 1) echo "出席";
-                                        elseif ($row['status'] == 2) echo formatDiffTime($row['lateness_min']) . "遅刻";
-                                        elseif ($row['status'] == 3) echo formatDiffTime($row['early_leave_min']) . "早退";
+                                        // 状況の表示ロジック
+                                        if ($row['status'] == 3) {
+                                            // 早退(3)の場合：そのレコードの最後の行(last_p)でのみ「xx分早退」を表示
+                                            echo formatDiffTime($row['early_leave_min']) . "早退";
+                                        } elseif ($row['status'] == 2) {
+                                            // 遅刻(2)の場合：最初の行のみで「xx分遅刻」を表示
+                                            echo formatDiffTime($row['lateness_min']) . "遅刻";
+                                        } elseif ($row['status'] == 1) {
+                                            // 出席中あるいは出席済み
+                                            // 在室中かつ入室時刻が表示されていない行は「-」
+                                            if ($row['is_current_stay'] == 1 && $row['start_time_disp'] === '-') {
+                                                echo "-";
+                                            } else {
+                                                echo "出席";
+                                            }
+                                        }
                                     } else {
                                         echo ($row['subject_mei'] !== '-') ? '<span style="color:red;">欠席</span>' : '-';
                                     }
@@ -182,18 +198,10 @@ function formatDiffTime($total_minutes)
                     <h3 class="section-title">成績表</h3>
                     <div class="grade-table-wrapper">
                         <table class="grade-table">
-                            <thead>
-                                <tr>
-                                    <th>授業名</th>
-                                    <th>出席率(%)</th>
-                                </tr>
-                            </thead>
+                            <thead><tr><th>授業名</th><th>出席率(%)</th></tr></thead>
                             <tbody>
                                 <?php foreach ($grades as $g): ?>
-                                    <tr>
-                                        <td><?php echo htmlspecialchars($g['subject_mei']); ?></td>
-                                        <td><?php echo (int)$g['attendance_rate']; ?>%</td>
-                                    </tr>
+                                    <tr><td><?php echo htmlspecialchars($g['subject_mei']); ?></td><td><?php echo (int)$g['attendance_rate']; ?>%</td></tr>
                                 <?php endforeach; ?>
                             </tbody>
                         </table>
