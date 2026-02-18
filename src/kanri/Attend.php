@@ -13,7 +13,7 @@ $user_id = isset($_POST['user_id']) ? (int)$_POST['user_id'] : 0;
 $selected_date = isset($_POST['date']) ? $_POST['date'] : date('Y-m-d');
 $day_end_val = $selected_date . ' 23:59:59';
 
-// 3. SQLの実行 (出席記録)
+// 3. SQLの実行 (出席記録と滞在時間の算出)
 $sql = "
 WITH all_student_classes AS (
     SELECT DISTINCT
@@ -37,7 +37,23 @@ user_personal_record AS (
         r.checkin,
         r.checkout,
         r.status as original_status,
-        /* 修正：早退(3)の場合は最後の時限、それ以外(遅刻等)は最初の時限にステータスを割り当てる */
+        /* 出席時間の計算ロジック修正 */
+        GREATEST(
+            0,
+            EXTRACT(EPOCH FROM (
+                /* 終了時刻の判定：早退(3)なら実時刻、それ以外(1,2)なら授業枠の終了時刻(end_time) */
+                CASE 
+                    WHEN r.status = 3 THEN LEAST(pm.end_time, CAST(COALESCE(r.checkout, CURRENT_TIMESTAMP) AS TIME))
+                    ELSE pm.end_time
+                END 
+                - 
+                /* 開始時刻の判定：遅刻(2)なら実時刻、それ以外(1,3)なら授業枠の開始時刻(start_time) */
+                CASE 
+                    WHEN r.status = 2 THEN GREATEST(pm.start_time, CAST(r.checkin AS TIME))
+                    ELSE pm.start_time
+                END
+            )) / 60
+        ) as stay_minutes_in_period,
         CASE 
             WHEN r.status = 3 AND pm.period_id = MAX(pm.period_id) OVER(PARTITION BY r.user_id, r.checkin) THEN 3
             WHEN r.status != 3 AND pm.period_id = MIN(pm.period_id) OVER(PARTITION BY r.user_id, r.checkin) THEN r.status
@@ -74,8 +90,7 @@ SELECT
     upr.is_current_stay,
     upr.lateness_min,
     upr.early_leave_min,
-    upr.first_p,
-    upr.last_p
+    upr.stay_minutes_in_period
 FROM period_master pm
 LEFT JOIN all_student_classes asc_table ON pm.period_id = asc_table.period_id
 LEFT JOIN user_personal_record upr ON pm.period_id = upr.period_id
@@ -85,23 +100,46 @@ ORDER BY pm.period_id;
 
 $params = [$selected_date, $day_end_val, $user_id];
 $result = pg_query_params($dbconn, $sql, $params);
-
-if ($result === false) {
-    exit("SQL実行エラー: " . pg_last_error($dbconn));
-}
 $results = pg_fetch_all($result) ?: [];
 
-// 4. 成績一覧の取得
+// 4. 成績一覧の計算ロジック（累積）
 $sql_grades = "
+WITH actual_stay AS (
+    SELECT 
+        r.subject_id,
+        SUM(
+            GREATEST(
+                0,
+                EXTRACT(EPOCH FROM (
+                    CASE 
+                        WHEN r.status = 3 THEN LEAST(pm.end_time, CAST(COALESCE(r.checkout, CURRENT_TIMESTAMP) AS TIME))
+                        ELSE pm.end_time
+                    END 
+                    - 
+                    CASE 
+                        WHEN r.status = 2 THEN GREATEST(pm.start_time, CAST(r.checkin AS TIME))
+                        ELSE pm.start_time
+                    END
+                )) / 60
+            )
+        ) as total_stay_minutes
+    FROM stu_record r
+    JOIN period_master pm ON 
+        CAST(r.checkin AS TIME) < pm.end_time 
+        AND CAST(COALESCE(r.checkout, r.checkin + interval '10 hours') AS TIME) > pm.start_time
+    WHERE r.user_id = CAST($1 AS INTEGER)
+    GROUP BY r.subject_id
+)
 SELECT 
     s.subject_mei,
+    COALESCE(SUM(a.total_stay_minutes), 0) as total_minutes,
     CASE 
         WHEN EXTRACT(EPOCH FROM s.basetime) > 0 THEN
-            ROUND((SUM(EXTRACT(EPOCH FROM (r.checkout - r.checkin)) / 60) / (EXTRACT(EPOCH FROM s.basetime) / 60)) * 100)
+            LEAST(100, ROUND((COALESCE(SUM(a.total_stay_minutes), 0) / (EXTRACT(EPOCH FROM s.basetime) / 60)) * 100))
         ELSE 0 
     END as attendance_rate
 FROM subject s
-LEFT JOIN stu_record r ON s.subject_id = r.subject_id AND r.user_id = CAST($1 AS INTEGER)
+LEFT JOIN actual_stay a ON s.subject_id = a.subject_id
 WHERE s.subject_id >= (CAST(SUBSTR(CAST($1 AS TEXT), 3, 1) AS INTEGER) * 100)
   AND s.subject_id < ((CAST(SUBSTR(CAST($1 AS TEXT), 3, 1) AS INTEGER) + 1) * 100)
 GROUP BY s.subject_id, s.subject_mei, s.basetime
@@ -151,11 +189,7 @@ function formatDiffTime($total_minutes)
                             </th>
                         </tr>
                         <tr>
-                            <th>時限</th>
-                            <th>授業名</th>
-                            <th>入室時刻</th>
-                            <th>退出時刻</th>
-                            <th>状況</th>
+                            <th>時限</th><th>授業名</th><th>入室時刻</th><th>退出時刻</th><th>状況</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -168,16 +202,11 @@ function formatDiffTime($total_minutes)
                                 <td>
                                     <?php
                                     if ($row['status'] !== null) {
-                                        // 状況の表示ロジック
                                         if ($row['status'] == 3) {
-                                            // 早退(3)の場合：そのレコードの最後の行(last_p)でのみ「xx分早退」を表示
                                             echo formatDiffTime($row['early_leave_min']) . "早退";
                                         } elseif ($row['status'] == 2) {
-                                            // 遅刻(2)の場合：最初の行のみで「xx分遅刻」を表示
                                             echo formatDiffTime($row['lateness_min']) . "遅刻";
                                         } elseif ($row['status'] == 1) {
-                                            // 出席中あるいは出席済み
-                                            // 在室中かつ入室時刻が表示されていない行は「-」
                                             if ($row['is_current_stay'] == 1 && $row['start_time_disp'] === '-') {
                                                 echo "-";
                                             } else {
@@ -198,10 +227,20 @@ function formatDiffTime($total_minutes)
                     <h3 class="section-title">成績表</h3>
                     <div class="grade-table-wrapper">
                         <table class="grade-table">
-                            <thead><tr><th>授業名</th><th>出席率(%)</th></tr></thead>
+                            <thead>
+                                <tr>
+                                    <th>授業名</th>
+                                    <th>合計出席時間</th>
+                                    <th>出席率(%)</th>
+                                </tr>
+                            </thead>
                             <tbody>
                                 <?php foreach ($grades as $g): ?>
-                                    <tr><td><?php echo htmlspecialchars($g['subject_mei']); ?></td><td><?php echo (int)$g['attendance_rate']; ?>%</td></tr>
+                                    <tr>
+                                        <td><?php echo htmlspecialchars($g['subject_mei']); ?></td>
+                                        <td><?php echo formatDiffTime($g['total_minutes']); ?></td>
+                                        <td><?php echo (int)$g['attendance_rate']; ?>%</td>
+                                    </tr>
                                 <?php endforeach; ?>
                             </tbody>
                         </table>
